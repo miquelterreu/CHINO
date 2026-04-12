@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fichas Chino Mandarín 🇨🇳</title>
+
+<!-- PWA / iPhone "Añadir a pantalla de inicio" -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="汉字 Chino">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="description" content="App de fichas para estudiar chino mandarín – Integrated Chinese Tema 4">
+<!-- Icono para iPhone (se genera con canvas al cargar) -->
+<link id="apple-touch-icon" rel="apple-touch-icon" href="">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Fichas+Chino+Mandar%C3%ADn%22%2C%22short_name%22%3A%22%E6%B1%89%E5%AD%97+Chino%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f5f5f0%22%2C%22theme_color%22%3A%22%231a1a1a%22%7D">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;padding:1rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom));padding-top:calc(1rem + env(safe-area-inset-top));}
+.app{max-width:520px;margin:0 auto;}
+h1{text-align:center;font-size:20px;font-weight:600;margin-bottom:4px;color:#1a1a1a;}
+.subtitle{text-align:center;font-size:13px;color:#888;margin-bottom:1rem;}
+
+/* NAV TABS */
+.nav{display:flex;background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:4px;gap:4px;margin-bottom:1.25rem;}
+.nav-btn{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;font-size:13px;font-weight:500;color:#888;cursor:pointer;transition:all .15s;}
+.nav-btn.on{background:#1a1a1a;color:#fff;}
+
+/* SECTIONS */
+.section{display:none;}
+.section.on{display:block;}
+
+/* FICHAS */
+.mode-row{display:flex;gap:6px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.mb{padding:5px 13px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#555;font-size:12px;cursor:pointer;}
+.mb.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.autoplay-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.5rem;}
+.autoplay-row label{font-size:12px;color:#777;cursor:pointer;}
+.voice-warn{font-size:11px;color:#aaa;text-align:center;margin-bottom:.75rem;min-height:14px;}
+.filter-wrap{background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:.75rem 1rem;margin-bottom:.75rem;}
+.filter-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;}
+.fb{padding:4px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#666;font-size:11px;cursor:pointer;}
+.fb.on{background:#4a90d9;color:#fff;border-color:#4a90d9;}
+.prog-label{font-size:12px;color:#888;margin-bottom:4px;}
+.prog-wrap{height:4px;background:#e8e8e8;border-radius:99px;margin-bottom:1.25rem;}
+.prog-fill{height:4px;background:#2ecc71;border-radius:99px;transition:width .4s;}
+.card-area{perspective:1000px;display:flex;justify-content:center;margin-bottom:.75rem;}
+.card-outer{width:100%;height:240px;cursor:pointer;user-select:none;}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s;}
+.card-inner.flipped{transform:rotateY(180deg);}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;border:1px solid #e8e8e8;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.back{transform:rotateY(180deg);}
+.hanzi{font-size:58px;line-height:1;}
+.pinyin{font-size:16px;color:#888;}
+.cat-badge{font-size:11px;color:#aaa;background:#f5f5f0;padding:2px 10px;border-radius:99px;}
+.hint{font-size:11px;color:#bbb;margin-top:2px;}
+.esp{font-size:22px;font-weight:600;color:#1a1a1a;text-align:center;line-height:1.3;}
+.audio-row{display:flex;gap:8px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.audio-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#333;font-size:13px;cursor:pointer;}
+.audio-btn:hover{background:#f5f5f0;}
+.audio-btn.playing{border-color:#2ecc71;color:#27ae60;background:#f0faf4;}
+.actions{display:flex;gap:10px;justify-content:center;margin-bottom:1rem;}
+.btn-no{padding:11px 28px;border-radius:10px;border:1px solid #f5a5a5;background:#fff;color:#c0392b;font-size:15px;cursor:pointer;font-weight:500;}
+.btn-no:hover{background:#fdf0f0;}
+.btn-si{padding:11px 28px;border-radius:10px;border:1px solid #a5e0b8;background:#fff;color:#27ae60;font-size:15px;cursor:pointer;font-weight:500;}
+.btn-si:hover{background:#f0faf4;}
+.btn-skip{padding:11px 16px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#888;font-size:15px;cursor:pointer;}
+.btn-skip:hover{background:#f5f5f0;}
+.stats{display:flex;gap:10px;justify-content:center;margin-top:.5rem;}
+.stat{text-align:center;background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:8px 20px;}
+.stat-n{font-size:22px;font-weight:600;}
+.stat-l{font-size:11px;color:#aaa;}
+.done-box{text-align:center;background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:2rem 1rem;margin-top:.5rem;}
+.done-box h3{font-size:20px;font-weight:600;margin-bottom:.5rem;}
+.done-box p{font-size:14px;color:#888;margin-bottom:1.25rem;line-height:1.5;}
+.restart-btn{padding:10px 22px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#333;font-size:14px;cursor:pointer;margin:4px;font-weight:500;}
+.dataset-row{display:flex;gap:6px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.ds-btn{padding:5px 13px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#555;font-size:12px;cursor:pointer;}
+.ds-btn.on{background:#7c5cbf;color:#fff;border-color:#7c5cbf;}
+
+/* ===== PHRASES MODE CARD ===== */
+.card-outer.phrase-mode{height:240px;}
+.phrase-hanzi{font-size:34px;line-height:1.4;text-align:center;font-weight:500;color:#1a1a1a;}
+.phrase-back-esp{font-size:17px;font-weight:600;color:#1a1a1a;text-align:center;line-height:1.4;margin-bottom:4px;}
+.phrase-back-pinyin{font-size:13px;color:#4a90d9;text-align:center;line-height:1.5;}
+.phrase-back-hanzi{font-size:15px;color:#aaa;text-align:center;margin-top:4px;}
+
+/* Shadowing info bar */
+.shadow-bar{background:linear-gradient(135deg,#7c5cbf,#4a90d9);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:none;}
+.shadow-bar.on{display:flex;align-items:center;gap:10px;}
+.shadow-icon{font-size:22px;}
+.shadow-text{flex:1;}
+.shadow-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px;}
+.shadow-sub{font-size:11px;color:rgba(255,255,255,.75);}
+.shadow-stop{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.shadow-stop:hover{background:rgba(255,255,255,.35);}
+
+/* Phrase repeat btn */
+.btn-repeat{padding:8px 16px;border-radius:10px;border:1px solid #c3aef0;background:#f5f0ff;color:#7c5cbf;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.btn-repeat:hover{background:#ede5ff;}
+.btn-repeat.playing{border-color:#7c5cbf;background:#7c5cbf;color:#fff;}
+
+/* Phrase selector */
+.phrase-selector{background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:.75rem;margin-bottom:.75rem;display:none;}
+.phrase-selector.on{display:block;}
+.ps-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+.ps-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+.ps-actions{display:flex;gap:6px;}
+.ps-act-btn{padding:3px 10px;border-radius:7px;border:1px solid #ddd;background:#fff;color:#666;font-size:11px;cursor:pointer;}
+.ps-act-btn:hover{background:#f5f5f0;}
+.ps-act-btn.primary{background:#7c5cbf;color:#fff;border-color:#7c5cbf;}
+.phrase-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.phrase-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid #e8e8e8;background:#fafafa;cursor:pointer;transition:all .15s;}
+.phrase-item.selected{border-color:#7c5cbf;background:#f5f0ff;}
+.phrase-item-check{width:18px;height:18px;border-radius:5px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+.phrase-item.selected .phrase-item-check{background:#7c5cbf;border-color:#7c5cbf;color:#fff;}
+.phrase-item-text{flex:1;min-width:0;}
+.phrase-item-h{font-size:16px;color:#1a1a1a;font-weight:500;}
+.phrase-item-es{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.phrase-item-play{padding:4px 8px;border-radius:7px;border:1px solid #ddd;background:#fff;font-size:12px;cursor:pointer;flex-shrink:0;}
+.phrase-item-play:hover{background:#f0faf4;border-color:#2ecc71;}
+.sel-toggle-btn{padding:5px 13px;border-radius:8px;border:1px solid #c3aef0;background:#f5f0ff;color:#7c5cbf;font-size:12px;cursor:pointer;font-weight:500;}
+.sel-toggle-btn:hover{background:#ede5ff;}
+
+/* ===== PASO A PASO (word-by-word) ===== */
+.step-box{background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none;flex-direction:column;align-items:center;gap:8px;min-height:200px;justify-content:center;margin-bottom:.75rem;}
+.step-box.on{display:flex;}
+.step-counter{font-size:11px;color:#bbb;letter-spacing:.5px;}
+.step-hanzi{font-size:62px;line-height:1;color:#1a1a1a;text-align:center;}
+.step-pinyin{font-size:18px;color:#4a90d9;}
+.step-nav{display:flex;gap:10px;justify-content:center;margin-bottom:.75rem;}
+.step-btn{padding:10px 22px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#333;font-size:14px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px;}
+.step-btn:hover{background:#f5f5f0;}
+.step-btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.step-btn.primary:hover{background:#333;}
+.step-full-btn{width:100%;padding:9px;border-radius:10px;border:1px solid #e8e8e8;background:#f5f5f0;color:#888;font-size:12px;cursor:pointer;margin-bottom:.75rem;}
+.step-full-btn:hover{background:#ebe9e3;}
+.step-phrase-full{font-size:13px;color:#aaa;text-align:center;line-height:1.8;margin-top:4px;display:none;}
+.step-phrase-full.on{display:block;}
+
+.pd-usos-title{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.pd-uso-chip{display:inline-flex;align-items:center;gap:6px;background:#f5f5f0;border:1px solid #e8e8e8;border-radius:10px;padding:6px 12px;margin:3px;cursor:pointer;transition:all .15s;}
+.pd-uso-chip:hover{background:#e8f4ff;border-color:#4a90d9;}
+.pd-uso-chip .uc-h{font-size:18px;color:#1a1a1a;font-weight:500;}
+.pd-uso-chip .uc-p{font-size:10px;color:#4a90d9;}
+.pd-uso-chip .uc-es{font-size:10px;color:#888;}
+
+/* Quiz */
+.quiz-dataset-row{display:flex;gap:6px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.quiz-card{background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:2rem 1.5rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:.75rem;}
+.quiz-hanzi{font-size:72px;line-height:1;margin-bottom:.5rem;cursor:pointer;}
+.quiz-pinyin{font-size:16px;color:#888;margin-bottom:.25rem;min-height:22px;}
+.quiz-hint{font-size:11px;color:#bbb;}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.qopt{padding:14px 10px;border-radius:12px;border:2px solid #e8e8e8;background:#fff;font-size:15px;font-weight:500;color:#1a1a1a;cursor:pointer;transition:all .2s;line-height:1.3;}
+.qopt:hover{border-color:#4a90d9;background:#f0f4ff;}
+.qopt.correct{border-color:#2ecc71;background:#f0faf4;color:#27ae60;}
+.qopt.wrong{border-color:#e74c3c;background:#fdf0f0;color:#c0392b;}
+.qopt.reveal{border-color:#2ecc71;background:#f0faf4;color:#27ae60;}
+.qopt:disabled{cursor:default;}
+.quiz-feedback{text-align:center;font-size:15px;font-weight:600;min-height:24px;margin-bottom:.5rem;}
+.quiz-feedback.ok{color:#27ae60;}
+.quiz-feedback.ko{color:#c0392b;}
+.quiz-stats-row{display:flex;gap:10px;justify-content:center;margin-bottom:.75rem;}
+.quiz-next-btn{width:100%;padding:13px;border-radius:12px;border:none;background:#1a1a1a;color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:none;margin-bottom:.5rem;}
+.quiz-next-btn:hover{background:#333;}
+.quiz-score{text-align:center;background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:2rem 1rem;display:none;}
+.quiz-score h3{font-size:22px;font-weight:700;margin-bottom:.5rem;}
+.quiz-score p{font-size:14px;color:#888;margin-bottom:1.25rem;}
+.quiz-score-emoji{font-size:52px;margin-bottom:.5rem;}
+
+/* Footer autor */
+.app-footer{text-align:center;padding:1.5rem 0 .5rem;font-size:11px;color:#ccc;letter-spacing:.3px;}
+.app-footer span{color:#bbb;font-weight:500;}
+
+/* Install banner */
+.install-banner{display:none;background:#1a1a1a;color:#fff;border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;align-items:center;gap:10px;}
+.install-banner.on{display:flex;}
+.ib-icon{font-size:26px;flex-shrink:0;}
+.ib-text{flex:1;}
+.ib-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.ib-sub{font-size:11px;color:rgba(255,255,255,.65);line-height:1.4;}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;flex-shrink:0;padding:0 4px;}
+
+/* PRONUNCIACIÓN */
+.pron-search{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;font-size:15px;margin-bottom:.75rem;outline:none;}
+.pron-search:focus{border-color:#4a90d9;}
+.pron-cat-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pron-cat-btn{padding:4px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#666;font-size:11px;cursor:pointer;}
+.pron-cat-btn.on{background:#e67e22;color:#fff;border-color:#e67e22;}
+.pron-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:1rem;}
+.pron-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;user-select:none;}
+.pron-card:hover{background:#f0f4ff;border-color:#4a90d9;}
+.pron-card.active{background:#4a90d9;border-color:#4a90d9;}
+.pron-card .ph{font-size:30px;line-height:1;margin-bottom:3px;}
+.pron-card .pp{font-size:10px;color:#aaa;margin-bottom:2px;}
+.pron-card .pe{font-size:10px;color:#888;line-height:1.2;}
+.pron-card.active .pp,.pron-card.active .pe{color:#c8e0ff;}
+.pron-card.active .ph{color:#fff;}
+.pron-detail{background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:1.5rem;text-align:center;margin-bottom:1rem;display:none;}
+.pron-detail.on{display:block;}
+.pd-hanzi{font-size:72px;line-height:1;margin-bottom:6px;cursor:pointer;}
+.pd-pinyin{font-size:20px;color:#888;margin-bottom:4px;}
+.pd-cat{font-size:12px;color:#aaa;background:#f5f5f0;padding:2px 12px;border-radius:99px;display:inline-block;margin-bottom:10px;}
+.pd-esp{font-size:18px;font-weight:600;color:#1a1a1a;margin-bottom:14px;}
+.pd-btns{display:flex;gap:8px;justify-content:center;}
+.pd-btn{padding:9px 20px;border-radius:10px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.pd-btn:hover{background:#f5f5f0;}
+.pd-btn.playing{border-color:#2ecc71;color:#27ae60;background:#f0faf4;}
+.pron-empty{text-align:center;color:#bbb;font-size:14px;padding:2rem;display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Banner de instalación iPhone -->
+  <div class="install-banner" id="install-banner">
+    <div class="ib-icon">📲</div>
+    <div class="ib-text">
+      <div class="ib-title">Añadir a pantalla de inicio</div>
+      <div class="ib-sub">Toca <strong>□↑</strong> (compartir) en Safari → "Añadir a pantalla de inicio" para usarla como app</div>
+    </div>
+    <button class="ib-close" onclick="dismissBanner()">✕</button>
+  </div>
+
+  <h1>汉字 Chino Mandarín</h1>
+  <p class="subtitle">Integrated Chinese · Vocabulario + Frases + Audio</p>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn on" id="nav-fichas" onclick="showSection('fichas')">🃏 Fichas</button>
+    <button class="nav-btn" id="nav-frases" onclick="showSection('frases')">🗣️ Oral</button>
+    <button class="nav-btn" id="nav-quiz" onclick="showSection('quiz')">🧩 Quiz</button>
+    <button class="nav-btn" id="nav-pron" onclick="showSection('pron')">🔊 Pron.</button>
+  </div>
+
+  <!-- ===== SECTION: FICHAS ===== -->
+  <div class="section on" id="sec-fichas">
+
+    <div class="dataset-row">
+      <button class="ds-btn on" id="ds-hobbies" onclick="setDataset('hobbies')">Tema 4 · Hobbies</button>
+      <button class="ds-btn" id="ds-all" onclick="setDataset('all')">Todo el vocabulario (142)</button>
+    </div>
+
+    <div class="filter-wrap">
+      <div class="filter-title">Filtrar por categoría</div>
+      <div class="filter-row" id="filters"></div>
+    </div>
+
+    <div class="mode-row">
+      <button class="mb on" id="m-hanzi" onclick="setMode('hanzi')">汉字 → Español</button>
+      <button class="mb" id="m-esp" onclick="setMode('esp')">Español → 汉字</button>
+      <button class="mb" id="m-oral" onclick="setMode('oral')">Solo audio 🎧</button>
+    </div>
+
+    <div class="autoplay-row">
+      <input type="checkbox" id="autoplay-cb" checked onchange="autoplay=this.checked">
+      <label for="autoplay-cb">Reproducir audio automáticamente</label>
+    </div>
+    <div class="voice-warn" id="voice-warn"></div>
+
+    <div class="prog-label" id="prog-label">Ficha 1 de 29</div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+    <div class="card-area">
+      <div class="card-outer" onclick="flip()">
+        <div class="card-inner" id="ci">
+          <div class="face front">
+            <div class="hanzi" id="f-main"></div>
+            <div class="pinyin" id="f-sub"></div>
+            <div class="cat-badge" id="f-cat"></div>
+            <div class="hint" id="f-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="esp" id="b-main"></div>
+            <div class="pinyin" id="b-pinyin"></div>
+            <div class="hanzi" style="font-size:30px;" id="b-hanzi"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="audio-row">
+      <button class="audio-btn" id="btn-zh" onclick="speak('zh')">🔊 Chino</button>
+      <button class="audio-btn" id="btn-es" onclick="speak('es')">🔊 Español</button>
+    </div>
+
+    <div class="actions" id="actions">
+      <button class="btn-no" onclick="answer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="skipCard()">→ Saltar</button>
+      <button class="btn-si" onclick="answer(true)">✓ La sé</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-ok" style="color:#27ae60;">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="s-no" style="color:#c0392b;">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="s-left">29</div><div class="stat-l">Quedan</div></div>
+    </div>
+
+    <div id="done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="done-msg"></p>
+      <button class="restart-btn" onclick="restart('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restart('wrong')">⚠️ Solo las que fallé</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: FRASES / ORAL ===== -->
+  <div class="section" id="sec-frases">
+
+    <div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:.75rem 1rem;margin-bottom:.75rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+        <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Modo de práctica</div>
+        <button class="sel-toggle-btn" id="sel-toggle-btn" onclick="toggleSelector()">☰ Seleccionar frases</button>
+      </div>
+      <div class="mode-row" style="margin-bottom:0;">
+        <button class="mb on" id="pm-listen" onclick="setPhraseMode('listen')">🎧 Escuchar</button>
+        <button class="mb" id="pm-shadow" onclick="setPhraseMode('shadow')">🔁 Shadowing</button>
+        <button class="mb" id="pm-esp" onclick="setPhraseMode('esp')">Español → 汉字</button>
+        <button class="mb" id="pm-step" onclick="setPhraseMode('step')">👣 Paso a paso</button>
+      </div>
+    </div>
+
+    <!-- Phrase selector -->
+    <div class="phrase-selector" id="phrase-selector">
+      <div class="ps-header">
+        <div class="ps-title">Elige las frases a practicar</div>
+        <div class="ps-actions">
+          <button class="ps-act-btn" onclick="psSelectAll()">Todas</button>
+          <button class="ps-act-btn" onclick="psSelectNone()">Ninguna</button>
+          <button class="ps-act-btn primary" onclick="applySelection()">▶ Practicar selección</button>
+        </div>
+      </div>
+      <div class="phrase-list" id="phrase-list"></div>
+    </div>
+
+    <!-- Shadowing info bar -->
+    <div class="shadow-bar" id="shadow-bar">
+      <div class="shadow-icon">🎙️</div>
+      <div class="shadow-text">
+        <div class="shadow-title">Modo Shadowing activo</div>
+        <div class="shadow-sub">Escucha → repite en voz alta → siguiente</div>
+      </div>
+      <button class="shadow-stop" onclick="stopShadow()">Pausar</button>
+    </div>
+
+    <div style="font-size:12px;color:#888;margin-bottom:4px;" id="ph-prog-label">Frase 1 de 20</div>
+    <div class="prog-wrap"><div class="prog-fill" id="ph-prog-fill" style="width:0%"></div></div>
+
+    <div class="card-area">
+      <div class="card-outer phrase-mode" onclick="flipPhrase()">
+        <div class="card-inner" id="ph-ci">
+          <div class="face front" id="ph-front">
+            <div style="font-size:26px;margin-bottom:4px;" id="ph-icon">🔊</div>
+            <div class="phrase-hanzi" id="ph-hanzi"></div>
+            <div class="hint" id="ph-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="phrase-back-esp" id="ph-esp"></div>
+            <div class="phrase-back-pinyin" id="ph-pinyin"></div>
+            <div class="phrase-back-hanzi" id="ph-hanzi-back"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="audio-row" style="margin-bottom:.5rem;">
+      <button class="audio-btn btn-repeat" id="btn-phrase-repeat" onclick="repeatPhrase()">🔁 Repetir frase</button>
+      <button class="audio-btn" id="btn-phrase-slow" onclick="repeatPhraseSlow()">🐢 Despacio</button>
+    </div>
+
+    <!-- PASO A PASO panel (visible only in step mode) -->
+    <div class="step-box" id="step-box">
+      <div class="step-counter" id="step-counter">Palabra 1 de 4</div>
+      <div class="step-hanzi" id="step-hanzi">我</div>
+      <div class="step-pinyin" id="step-pinyin">wǒ</div>
+    </div>
+    <div class="step-nav" id="step-nav" style="display:none;">
+      <button class="step-btn" onclick="stepPrev()">← Anterior</button>
+      <button class="step-btn primary" onclick="stepNext()">Siguiente →</button>
+      <button class="step-btn" onclick="phraseAnswer(true)" title="Pasar a la siguiente frase">⏭ Frase siguiente</button>
+    </div>
+    <button class="step-full-btn" id="step-full-btn" onclick="toggleStepFull()" style="display:none;">👁️ Ver / ocultar frase completa</button>
+    <div class="step-phrase-full" id="step-phrase-full"></div>
+
+    <div class="actions" id="ph-actions">
+      <button class="btn-no" onclick="phraseAnswer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="phraseSkip()">→ Saltar</button>
+      <button class="btn-si" onclick="phraseAnswer(true)">✓ La sé</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="ph-s-ok" style="color:#27ae60;">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-no" style="color:#c0392b;">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-left">20</div><div class="stat-l">Quedan</div></div>
+    </div>
+
+    <div id="ph-done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="ph-done-msg"></p>
+      <button class="restart-btn" onclick="restartPhrases('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restartPhrases('wrong')">⚠️ Solo las que fallé</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: PRONUNCIACIÓN ===== -->
+  <div class="section" id="sec-pron">
+
+    <div class="dataset-row" style="margin-bottom:.75rem;">
+      <button class="ds-btn on" id="pds-all" onclick="setPronDataset('all')">Todo el vocabulario</button>
+      <button class="ds-btn" id="pds-t4" onclick="setPronDataset('t4')">⭐ Tema 4 · Hobbies</button>
+    </div>
+
+    <input class="pron-search" id="pron-search" placeholder="Buscar carácter o significado..." oninput="renderGrid()">
+
+    <div class="pron-cat-row" id="pron-cats"></div>
+
+    <!-- detail panel -->
+    <div class="pron-detail" id="pron-detail">
+      <div class="pd-hanzi" id="pd-hanzi" onclick="pronSpeak('zh')" title="Toca para escuchar">—</div>
+      <div class="pd-pinyin" id="pd-pinyin"></div>
+      <div class="pd-cat" id="pd-cat"></div>
+      <div class="pd-esp" id="pd-esp"></div>
+      <div class="pd-usos" id="pd-usos" style="display:none;width:100%;margin-bottom:10px;"></div>
+      <div class="pd-btns">
+        <button class="pd-btn" id="pd-btn-zh" onclick="pronSpeak('zh')">🔊 Chino</button>
+        <button class="pd-btn" id="pd-btn-es" onclick="pronSpeak('es')">🔊 Español</button>
+        <button class="pd-btn" id="pd-btn-slow" onclick="pronSpeak('slow')">🐢 Despacio</button>
+      </div>
+    </div>
+
+    <div class="pron-grid" id="pron-grid"></div>
+    <div class="pron-empty" id="pron-empty">No se encontraron caracteres</div>
+
+  </div>
+
+  <!-- ===== SECTION: QUIZ ===== -->
+  <div class="section" id="sec-quiz">
+
+    <div class="quiz-dataset-row">
+      <button class="ds-btn on" id="qds-t4" onclick="setQuizDataset('t4')">⭐ Tema 4</button>
+      <button class="ds-btn" id="qds-all" onclick="setQuizDataset('all')">Todo el vocabulario</button>
+    </div>
+
+    <!-- Pregunta -->
+    <div class="quiz-card" id="quiz-card">
+      <div class="quiz-hanzi" id="quiz-hanzi" onclick="quizSpeak()">?</div>
+      <div class="quiz-pinyin" id="quiz-pinyin"></div>
+      <div class="quiz-hint" id="quiz-hint">🔊 Toca el carácter para escuchar</div>
+    </div>
+
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+
+    <div class="quiz-options" id="quiz-options"></div>
+
+    <button class="quiz-next-btn" id="quiz-next-btn" onclick="quizNext()">Siguiente →</button>
+
+    <div class="quiz-stats-row">
+      <div class="stat"><div class="stat-n" id="q-ok" style="color:#27ae60;">0</div><div class="stat-l">Correctas</div></div>
+      <div class="stat"><div class="stat-n" id="q-no" style="color:#c0392b;">0</div><div class="stat-l">Fallos</div></div>
+      <div class="stat"><div class="stat-n" id="q-left">10</div><div class="stat-l">Quedan</div></div>
+    </div>
+
+    <!-- Pantalla final -->
+    <div class="quiz-score" id="quiz-score">
+      <div class="quiz-score-emoji" id="quiz-score-emoji">🎉</div>
+      <h3 id="quiz-score-title">¡Ronda completada!</h3>
+      <p id="quiz-score-msg"></p>
+      <button class="restart-btn" onclick="startQuiz()">🔄 Jugar de nuevo</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Footer autor -->
+<div class="app-footer">Creado por <span>Miquel Terreu</span> · 汉字 Chino Mandarín</div>
+
+<script>
+/* ===================== DATA: VOCABULARIO ===================== */
+const HOBBIES=[
+  {h:"周末",p:"zhōumò",cat:"Sustantivo",es:"fin de semana",usos:[]},
+  {h:"打",p:"dǎ",cat:"Verbo",es:"golpear / dar",usos:[{h:"打球",p:"dǎ qiú",es:"jugar a la pelota"}]},
+  {h:"球",p:"qiú",cat:"Sustantivo",es:"pelota / balón",usos:[{h:"打球",p:"dǎ qiú",es:"jugar a la pelota"}]},
+  {h:"看",p:"kàn",cat:"Verbo",es:"ver / mirar / leer",usos:[{h:"看电视",p:"kàn diànshì",es:"ver la tele"},{h:"看书",p:"kàn shū",es:"leer (libros)"},{h:"看电影",p:"kàn diànyǐng",es:"ver una película"}]},
+  {h:"电",p:"diàn",cat:"Sustantivo",es:"electricidad",usos:[{h:"电视",p:"diànshì",es:"televisión"},{h:"电影",p:"diànyǐng",es:"película"}]},
+  {h:"电视",p:"diànshì",cat:"Sustantivo",es:"televisión",usos:[{h:"看电视",p:"kàn diànshì",es:"ver la televisión"}]},
+  {h:"视",p:"shì",cat:"Sustantivo",es:"visión",usos:[{h:"电视",p:"diànshì",es:"televisión"}]},
+  {h:"唱",p:"chàng",cat:"Verbo",es:"cantar",usos:[{h:"唱歌",p:"chàng gē",es:"cantar una canción"}]},
+  {h:"歌",p:"gē",cat:"Sustantivo",es:"canción",usos:[{h:"唱歌",p:"chàng gē",es:"cantar una canción"}]},
+  {h:"跳",p:"tiào",cat:"Verbo",es:"saltar / dar un salto",usos:[{h:"跳舞",p:"tiào wǔ",es:"bailar"}]},
+  {h:"舞",p:"wǔ",cat:"Sustantivo",es:"danza / baile",usos:[{h:"跳舞",p:"tiào wǔ",es:"bailar"}]},
+  {h:"听",p:"tīng",cat:"Verbo",es:"escuchar",usos:[{h:"听音乐",p:"tīng yīnyuè",es:"escuchar música"}]},
+  {h:"音乐",p:"yīnyuè",cat:"Sustantivo",es:"música",usos:[{h:"听音乐",p:"tīng yīnyuè",es:"escuchar música"}]},
+  {h:"书",p:"shū",cat:"Sustantivo",es:"libro",usos:[{h:"看书",p:"kàn shū",es:"leer (libros)"}]},
+  {h:"对",p:"duì",cat:"Adjetivo",es:"correcto / bien",usos:[{h:"对不对",p:"duì bu duì",es:"¿verdad? / ¿no?"}]},
+  {h:"有的",p:"yǒude",cat:"Pronombre",es:"algunos / algunas",usos:[{h:"有的时候",p:"yǒude shíhou",es:"a veces"}]},
+  {h:"时候",p:"shíhou",cat:"Sustantivo",es:"momento / tiempo",usos:[{h:"有的时候",p:"yǒude shíhou",es:"a veces"}]},
+  {h:"电影",p:"diànyǐng",cat:"Sustantivo",es:"película",usos:[{h:"看电影",p:"kàn diànyǐng",es:"ver una película"},{h:"外国电影",p:"wàiguó diànyǐng",es:"película extranjera"}]},
+  {h:"影",p:"yǐng",cat:"Sustantivo",es:"sombra / imagen",usos:[{h:"电影",p:"diànyǐng",es:"película"}]},
+  {h:"常常",p:"chángcháng",cat:"Adverbio",es:"a menudo / frecuentemente",usos:[]},
+  {h:"那",p:"nà",cat:"Conjunción",es:"entonces / en ese caso",usos:[]},
+  {h:"去",p:"qù",cat:"Verbo",es:"ir",usos:[{h:"去看电影",p:"qù kàn diànyǐng",es:"ir a ver una película"}]},
+  {h:"外国",p:"wàiguó",cat:"Sustantivo",es:"país extranjero",usos:[{h:"外国电影",p:"wàiguó diànyǐng",es:"película extranjera"}]},
+  {h:"请客",p:"qǐng kè",cat:"Verbo-objeto",es:"invitar (pagar la cuenta)",usos:[]},
+  {h:"昨天",p:"zuótiān",cat:"Tiempo",es:"ayer",usos:[]},
+  {h:"所以",p:"suǒyǐ",cat:"Conjunción",es:"por eso / así que",usos:[{h:"因为…所以",p:"yīnwèi…suǒyǐ",es:"porque… por eso…"}]}
+];
+
+const ALLVOCAB=[
+  {h:"我",p:"wǒ",cat:"Pronombre",es:"yo"},{h:"你",p:"nǐ",cat:"Pronombre",es:"tú"},
+  {h:"您",p:"nín",cat:"Pronombre",es:"usted"},{h:"他",p:"tā",cat:"Pronombre",es:"él"},
+  {h:"她",p:"tā",cat:"Pronombre",es:"ella"},{h:"们",p:"men",cat:"Pronombre",es:"plural"},
+  {h:"我们",p:"wǒmen",cat:"Pronombre",es:"nosotros"},{h:"这",p:"zhè",cat:"Pronombre",es:"esto/este"},
+  {h:"那",p:"nà",cat:"Pronombre",es:"eso/aquel"},{h:"人",p:"rén",cat:"Sustantivo",es:"persona"},
+  {h:"家",p:"jiā",cat:"Sustantivo",es:"hogar/familia"},{h:"孩子",p:"háizi",cat:"Sustantivo",es:"niño/a"},
+  {h:"朋友",p:"péngyou",cat:"Sustantivo",es:"amigo"},{h:"同学",p:"tóngxué",cat:"Sustantivo",es:"compañero de clase"},
+  {h:"老师",p:"lǎoshī",cat:"Sustantivo",es:"profesor"},{h:"医生",p:"yīshēng",cat:"Sustantivo",es:"médico"},
+  {h:"律师",p:"lǜshī",cat:"Sustantivo",es:"abogado"},{h:"学生",p:"xuésheng",cat:"Sustantivo",es:"estudiante"},
+  {h:"大学生",p:"dàxuéshēng",cat:"Sustantivo",es:"universitario"},{h:"小姐",p:"xiǎojiě",cat:"Sustantivo",es:"señorita"},
+  {h:"先生",p:"xiānsheng",cat:"Sustantivo",es:"señor"},{h:"名字",p:"míngzi",cat:"Sustantivo",es:"nombre"},
+  {h:"照片",p:"zhàopiàn",cat:"Sustantivo",es:"foto"},{h:"爸爸",p:"bàba",cat:"Sustantivo",es:"papá"},
+  {h:"妈妈",p:"māma",cat:"Sustantivo",es:"mamá"},{h:"哥哥",p:"gēge",cat:"Sustantivo",es:"hermano mayor"},
+  {h:"弟弟",p:"dìdi",cat:"Sustantivo",es:"hermano menor"},{h:"姐姐",p:"jiějie",cat:"Sustantivo",es:"hermana mayor"},
+  {h:"妹妹",p:"mèimei",cat:"Sustantivo",es:"hermana menor"},{h:"儿子",p:"érzi",cat:"Sustantivo",es:"hijo"},
+  {h:"女儿",p:"nǚ'ér",cat:"Sustantivo",es:"hija"},{h:"菜",p:"cài",cat:"Sustantivo",es:"plato/comida"},
+  {h:"饭",p:"fàn",cat:"Sustantivo",es:"comida/arroz"},{h:"晚饭",p:"wǎnfàn",cat:"Sustantivo",es:"cena"},
+  {h:"书",p:"shū",cat:"Sustantivo",es:"libro"},{h:"今年",p:"jīnnián",cat:"Tiempo",es:"este año"},
+  {h:"年",p:"nián",cat:"Tiempo",es:"año"},{h:"月",p:"yuè",cat:"Tiempo",es:"mes"},
+  {h:"星期",p:"xīngqī",cat:"Tiempo",es:"semana"},{h:"星期一",p:"xīngqī yī",cat:"Tiempo",es:"lunes"},
+  {h:"星期二",p:"xīngqī èr",cat:"Tiempo",es:"martes"},{h:"星期三",p:"xīngqī sān",cat:"Tiempo",es:"miércoles"},
+  {h:"星期四",p:"xīngqī sì",cat:"Tiempo",es:"jueves"},{h:"星期五",p:"xīngqī wǔ",cat:"Tiempo",es:"viernes"},
+  {h:"星期六",p:"xīngqī liù",cat:"Tiempo",es:"sábado"},{h:"星期日",p:"xīngqī rì",cat:"Tiempo",es:"domingo"},
+  {h:"生日",p:"shēngrì",cat:"Tiempo",es:"cumpleaños"},{h:"昨天",p:"zuótiān",cat:"Tiempo",es:"ayer"},
+  {h:"今天",p:"jīntiān",cat:"Tiempo",es:"hoy"},{h:"周末",p:"zhōumò",cat:"Tiempo",es:"fin de semana"},
+  {h:"晚上",p:"wǎnshang",cat:"Tiempo",es:"noche"},{h:"点",p:"diǎn",cat:"Tiempo",es:"hora en punto"},
+  {h:"半",p:"bàn",cat:"Tiempo",es:"media hora"},{h:"刻",p:"kè",cat:"Tiempo",es:"cuarto de hora"},
+  {h:"是",p:"shì",cat:"Verbo",es:"ser"},{h:"有",p:"yǒu",cat:"Verbo",es:"tener/haber"},
+  {h:"没有",p:"méiyǒu",cat:"Verbo",es:"no tener"},{h:"做",p:"zuò",cat:"Verbo",es:"hacer"},
+  {h:"工作",p:"gōngzuò",cat:"Verbo",es:"trabajar"},{h:"请",p:"qǐng",cat:"Verbo",es:"pedir/invitar"},
+  {h:"问",p:"wèn",cat:"Verbo",es:"preguntar"},{h:"姓",p:"xìng",cat:"Verbo",es:"apellidarse"},
+  {h:"叫",p:"jiào",cat:"Verbo",es:"llamarse"},{h:"吃",p:"chī",cat:"Verbo",es:"comer"},
+  {h:"喜欢",p:"xǐhuān",cat:"Verbo",es:"gustar"},{h:"见",p:"jiàn",cat:"Verbo",es:"ver (a alguien)"},
+  {h:"再见",p:"zàijiàn",cat:"Verbo",es:"adiós/hasta luego"},{h:"认识",p:"rènshi",cat:"Verbo",es:"conocer"},
+  {h:"在",p:"zài",cat:"Verbo",es:"estar/en"},{h:"谢谢",p:"xièxie",cat:"Verbo",es:"dar las gracias"},
+  {h:"去",p:"qù",cat:"Verbo",es:"ir"},{h:"看",p:"kàn",cat:"Verbo",es:"ver/mirar/leer"},
+  {h:"听",p:"tīng",cat:"Verbo",es:"escuchar"},{h:"唱歌",p:"chàng gē",cat:"Verbo",es:"cantar"},
+  {h:"跳舞",p:"tiào wǔ",cat:"Verbo",es:"bailar"},{h:"打球",p:"dǎ qiú",cat:"Verbo",es:"jugar a la pelota"},
+  {h:"请客",p:"qǐng kè",cat:"Verbo",es:"invitar (pagar tú)"},
+  {h:"不",p:"bù",cat:"Adverbio",es:"no (negación)"},{h:"没",p:"méi",cat:"Adverbio",es:"no (negación de 有)"},
+  {h:"也",p:"yě",cat:"Adverbio",es:"también"},{h:"都",p:"dōu",cat:"Adverbio",es:"todos/ambos"},
+  {h:"很",p:"hěn",cat:"Adverbio",es:"muy"},{h:"多",p:"duō",cat:"Adverbio",es:"mucho"},
+  {h:"还",p:"hái",cat:"Adverbio",es:"también/además"},{h:"再",p:"zài",cat:"Adverbio",es:"otra vez"},
+  {h:"常常",p:"chángcháng",cat:"Adverbio",es:"a menudo"},{h:"两",p:"liǎng",cat:"Adverbio",es:"dos (antes de clasificador)"},
+  {h:"好",p:"hǎo",cat:"Adjetivo",es:"bueno/bien"},{h:"大",p:"dà",cat:"Adjetivo",es:"grande/mayor"},
+  {h:"忙",p:"máng",cat:"Adjetivo",es:"ocupado"},{h:"对",p:"duì",cat:"Adjetivo",es:"correcto"},
+  {h:"贵",p:"guì",cat:"Adjetivo",es:"caro/honorable"},{h:"女",p:"nǚ",cat:"Adjetivo",es:"femenino"},
+  {h:"男",p:"nán",cat:"Adjetivo",es:"masculino"},{h:"和",p:"hé",cat:"Conjunción",es:"y"},
+  {h:"因为",p:"yīnwèi",cat:"Conjunción",es:"porque"},{h:"所以",p:"suǒyǐ",cat:"Conjunción",es:"por eso/así que"},
+  {h:"可是",p:"kěshì",cat:"Conjunción",es:"pero"},{h:"还是",p:"háishi",cat:"Conjunción",es:"o/o bien"},
+  {h:"那",p:"nà",cat:"Conjunción",es:"entonces/en ese caso"},{h:"太…了",p:"tài…le",cat:"Conjunción",es:"demasiado"},
+  {h:"的",p:"de",cat:"Partícula",es:"posesivo/descriptivo"},{h:"吗",p:"ma",cat:"Partícula",es:"pregunta sí/no"},
+  {h:"呢",p:"ne",cat:"Partícula",es:"¿y…?"},{h:"有的",p:"yǒude",cat:"Partícula",es:"algunos"},
+  {h:"什么",p:"shénme",cat:"Interrogativo",es:"qué"},{h:"谁",p:"shéi",cat:"Interrogativo",es:"quién"},
+  {h:"几",p:"jǐ",cat:"Interrogativo",es:"cuántos"},{h:"为什么",p:"wèishénme",cat:"Interrogativo",es:"¿por qué?"},
+  {h:"怎么样",p:"zěnmeyàng",cat:"Interrogativo",es:"¿qué tal?"},{h:"个",p:"gè",cat:"Clasificador",es:"personas y número"},
+  {h:"口",p:"kǒu",cat:"Clasificador",es:"contar familia"},{h:"岁",p:"suì",cat:"Clasificador",es:"años de edad"},
+  {h:"中国",p:"Zhōngguó",cat:"Nombre propio",es:"China"},{h:"北京",p:"Běijīng",cat:"Nombre propio",es:"Beijing"},
+  {h:"美国",p:"Měiguó",cat:"Nombre propio",es:"EEUU"},{h:"英国",p:"Yīngguó",cat:"Nombre propio",es:"Reino Unido"},
+  {h:"外国",p:"wàiguó",cat:"Nombre propio",es:"país extranjero"},
+  {h:"电视",p:"diànshì",cat:"Sustantivo",es:"televisión"},{h:"音乐",p:"yīnyuè",cat:"Sustantivo",es:"música"},
+  {h:"电影",p:"diànyǐng",cat:"Sustantivo",es:"película"},{h:"时候",p:"shíhou",cat:"Sustantivo",es:"momento/tiempo"}
+];
+
+/* ===================== DATA: FRASES TEMA 4 ===================== */
+const PHRASES=[
+  // Frases cortas – examen oral
+  {h:"你周末做什么？",p:"Nǐ zhōumò zuò shénme?",es:"¿Qué haces el fin de semana?"},
+  {h:"你喜欢做什么？",p:"Nǐ xǐhuān zuò shénme?",es:"¿Qué te gusta hacer?"},
+  {h:"你喜欢看电影吗？",p:"Nǐ xǐhuān kàn diànyǐng ma?",es:"¿Te gusta ver películas?"},
+  {h:"你也喜欢看书吗？",p:"Nǐ yě xǐhuān kàn shū ma?",es:"¿A ti también te gusta leer?"},
+  {h:"我喜欢跳舞。",p:"Wǒ xǐhuān tiào wǔ.",es:"Me gusta bailar."},
+  {h:"我喜欢听音乐。",p:"Wǒ xǐhuān tīng yīnyuè.",es:"Me gusta escuchar música."},
+  {h:"我喜欢唱歌。",p:"Wǒ xǐhuān chàng gē.",es:"Me gusta cantar."},
+  {h:"我不喜欢打球。",p:"Wǒ bù xǐhuān dǎ qiú.",es:"No me gusta jugar a la pelota."},
+  {h:"有时候看看书。",p:"Yǒu shíhou kàn kàn shū.",es:"A veces leo un poco."},
+  {h:"我常常看电影。",p:"Wǒ chángcháng kàn diànyǐng.",es:"Veo películas a menudo."},
+  {h:"今天晚上去看吗？",p:"Jīntiān wǎnshang qù kàn ma?",es:"¿Esta noche vamos a ver?"},
+  {h:"我请客。",p:"Wǒ qǐng kè.",es:"Yo invito (yo pago)."},
+  {h:"为什么你请客？",p:"Wèishénme nǐ qǐng kè?",es:"¿Por qué invitas tú?"},
+  {h:"好吗？",p:"Hǎo ma?",es:"¿De acuerdo?"},
+  {h:"好，我去！",p:"Hǎo, wǒ qù!",es:"¡Bien, voy!"},
+  {h:"你呢？",p:"Nǐ ne?",es:"¿Y tú?"},
+  {h:"对，我也喜欢。",p:"Duì, wǒ yě xǐhuān.",es:"Sí, a mí también me gusta."},
+  {h:"我请你看电影。",p:"Wǒ qǐng nǐ kàn diànyǐng.",es:"Te invito al cine."},
+  {h:"怎么样？",p:"Zěnmeyàng?",es:"¿Qué te parece?"},
+  {h:"那我们去吧！",p:"Nà wǒmen qù ba!",es:"¡Pues vamos!"},
+  // Frases largas del libro (para Paso a paso)
+  {h:"我周末喜欢打球、听音乐，也喜欢看书，还喜欢看电影",p:"wǒ zhōumò xǐhuān dǎ qiú tīng yīnyuè yě xǐhuān kàn shū hái xǐhuān kàn diànyǐng",es:"Los fines de semana me gusta jugar a la pelota, escuchar música, también leer y ver películas"},
+  {h:"因为你喜欢电影，所以我请你今天晚上去看一个外国电影",p:"yīnwèi nǐ xǐhuān diànyǐng suǒyǐ wǒ qǐng nǐ jīntiān wǎnshang qù kàn yí gè wàiguó diànyǐng",es:"Como te gustan las películas, te invito esta noche a ver una película extranjera"},
+  {h:"昨天你请我吃饭，所以今天我请你看电影",p:"zuótiān nǐ qǐng wǒ chī fàn suǒyǐ jīntiān wǒ qǐng nǐ kàn diànyǐng",es:"Ayer tú me invitaste a cenar, por eso hoy yo te invito al cine"},
+  {h:"那我们今天晚上去看一个外国电影，怎么样？",p:"nà wǒmen jīntiān wǎnshang qù kàn yí gè wàiguó diànyǐng zěnmeyàng",es:"¿Qué tal si esta noche vamos a ver una película extranjera?"}
+];
+
+/* ===================== VOICE ===================== */
+let zhVoice=null,esVoice=null;
+function initVoices(){
+  const vs=speechSynthesis.getVoices();
+  zhVoice=vs.find(v=>v.lang.startsWith('zh-CN'))||vs.find(v=>v.lang.startsWith('zh'))||null;
+  esVoice=vs.find(v=>v.lang.startsWith('es-'))||vs.find(v=>v.lang.startsWith('es'))||null;
+  const w=document.getElementById('voice-warn');
+  if(w) w.textContent=zhVoice?'✓ Voz china: '+zhVoice.name:'⚠️ Sin voz china. Prueba Chrome.';
+}
+speechSynthesis.onvoiceschanged=initVoices;
+setTimeout(initVoices,500);
+
+function speakText(text,voice,lang,rate){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang=lang;
+  u.rate=rate||0.85;
+  speechSynthesis.speak(u);
+  return u;
+}
+
+/* Speak phrase twice with pause between */
+function speakPhraseTwice(text, rate, onDone){
+  speechSynthesis.cancel();
+  const u1=new SpeechSynthesisUtterance(text);
+  if(zhVoice){u1.voice=zhVoice;u1.lang=zhVoice.lang;}else u1.lang='zh-CN';
+  u1.rate=rate||0.75;
+  u1.onend=()=>{
+    setTimeout(()=>{
+      const u2=new SpeechSynthesisUtterance(text);
+      if(zhVoice){u2.voice=zhVoice;u2.lang=zhVoice.lang;}else u2.lang='zh-CN';
+      u2.rate=rate||0.75;
+      u2.onend=()=>{ if(onDone) onDone(); };
+      speechSynthesis.speak(u2);
+    },700);
+  };
+  speechSynthesis.speak(u1);
+}
+
+/* ===================== NAV ===================== */
+function showSection(s){
+  ['fichas','frases','quiz','pron'].forEach(x=>{
+    document.getElementById('sec-'+x).className='section'+(s===x?' on':'');
+    document.getElementById('nav-'+x).className='nav-btn'+(s===x?' on':'');
+  });
+  if(s==='pron') renderGrid();
+  if(s==='frases') initPhrases();
+  if(s==='quiz') initQuiz();
+}
+
+/* ===================== FICHAS ===================== */
+let currentSource=HOBBIES;
+let deck=[],idx=0,flipped=false,mode='hanzi',ok=0,no=0,wrong=[],autoplay=true;
+let activeCats=new Set(),allCats=[];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function setDataset(ds){
+  document.getElementById('ds-hobbies').className='ds-btn'+(ds==='hobbies'?' on':'');
+  document.getElementById('ds-all').className='ds-btn'+(ds==='all'?' on':'');
+  currentSource=ds==='all'?ALLVOCAB:HOBBIES;
+  buildFilters();
+}
+
+function buildFilters(){
+  allCats=[...new Set(currentSource.map(x=>x.cat))];
+  activeCats=new Set(allCats);
+  const c=document.getElementById('filters');c.innerHTML='';
+  const all=document.createElement('button');
+  all.className='fb on';all.id='f-ALL';all.textContent='Todas';
+  all.onclick=()=>toggleAll();c.appendChild(all);
+  allCats.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='fb on';b.id='f-'+cat;b.textContent=cat;
+    b.onclick=()=>toggleCat(cat);c.appendChild(b);
+  });
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+function toggleAll(){
+  const allOn=activeCats.size===allCats.length;
+  activeCats=allOn?new Set():new Set(allCats);
+  allCats.forEach(c=>{const b=document.getElementById('f-'+c);if(b)b.className='fb'+(activeCats.has(c)?' on':'');});
+  document.getElementById('f-ALL').className='fb'+(activeCats.size===allCats.length?' on':'');
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+function toggleCat(cat){
+  activeCats.has(cat)?activeCats.delete(cat):activeCats.add(cat);
+  document.getElementById('f-'+cat).className='fb'+(activeCats.has(cat)?' on':'');
+  document.getElementById('f-ALL').className='fb'+(activeCats.size===allCats.length?' on':'');
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+function buildDeck(src){
+  if(!src||!src.length)return;
+  deck=shuffle([...src]);idx=0;ok=0;no=0;wrong=[];
+  updateStats();showCard();
+  document.getElementById('done-box').style.display='none';
+  document.getElementById('actions').style.display='flex';
+}
+
+function setMode(m){
+  mode=m;
+  ['hanzi','esp','oral'].forEach(x=>document.getElementById('m-'+x).className='mb'+(m===x?' on':''));
+  showCard();
+}
+
+function showCard(){
+  if(idx>=deck.length){showDone();return;}
+  const c=deck[idx];flipped=false;
+  document.getElementById('ci').className='card-inner';
+  document.getElementById('f-cat').textContent=c.cat;
+  if(mode==='hanzi'){
+    document.getElementById('f-main').textContent=c.h;
+    document.getElementById('f-main').style.fontSize='56px';
+    document.getElementById('f-sub').textContent=c.p;
+    document.getElementById('f-hint').textContent='Toca para ver el significado';
+    document.getElementById('b-main').textContent=c.es;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.h;
+  } else if(mode==='esp'){
+    document.getElementById('f-main').textContent=c.es;
+    document.getElementById('f-main').style.fontSize='20px';
+    document.getElementById('f-sub').textContent='';
+    document.getElementById('f-hint').textContent='Toca para ver el carácter';
+    document.getElementById('b-main').textContent=c.h;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.es;
+  } else {
+    document.getElementById('f-main').textContent='🔊';
+    document.getElementById('f-main').style.fontSize='52px';
+    document.getElementById('f-sub').textContent='¿Qué palabra es?';
+    document.getElementById('f-hint').textContent='Escucha y toca para revelar';
+    document.getElementById('b-main').textContent=c.es;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.h;
+  }
+  const pct=Math.round(idx/deck.length*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent='Ficha '+(idx+1)+' de '+deck.length;
+  document.getElementById('s-left').textContent=deck.length-idx;
+  if(autoplay) setTimeout(()=>speakText(c.h,zhVoice,'zh-CN'),350);
+}
+
+function flip(){
+  flipped=!flipped;
+  document.getElementById('ci').className='card-inner'+(flipped?' flipped':'');
+  if(flipped&&autoplay&&mode==='oral') setTimeout(()=>speakText(deck[idx].h,zhVoice,'zh-CN'),400);
+}
+
+function speak(lang){
+  if(idx>=deck.length)return;
+  const c=deck[idx];
+  const u=speakText(lang==='zh'?c.h:c.es,lang==='zh'?zhVoice:esVoice,lang==='zh'?'zh-CN':'es-ES');
+  const btn=document.getElementById(lang==='zh'?'btn-zh':'btn-es');
+  if(btn){btn.classList.add('playing');u.onend=()=>btn.classList.remove('playing');}
+}
+
+function answer(knew){
+  if(!flipped){flip();return;}
+  if(knew)ok++;else{no++;wrong.push(deck[idx]);}
+  idx++;updateStats();showCard();
+}
+
+function skipCard(){
+  if(!flipped){flip();return;}
+  wrong.push(deck[idx]);no++;idx++;updateStats();showCard();
+}
+
+function updateStats(){
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-no').textContent=no;
+  document.getElementById('s-left').textContent=Math.max(0,deck.length-idx);
+}
+
+function showDone(){
+  speechSynthesis.cancel();
+  document.getElementById('done-box').style.display='block';
+  document.getElementById('actions').style.display='none';
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('done-msg').textContent='Sabías '+ok+' de '+deck.length+'. '+(wrong.length?'Tienes '+wrong.length+' para repasar.':'¡Perfecto, todas correctas! 🌟');
+}
+
+function restart(t){
+  document.getElementById('done-box').style.display='none';
+  document.getElementById('actions').style.display='flex';
+  buildDeck(t==='wrong'&&wrong.length?wrong:currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+/* ===================== FRASES / ORAL ===================== */
+let phDeck=[],phIdx=0,phFlipped=false,phOk=0,phNo=0,phWrong=[];
+let phraseMode='listen'; // listen | shadow | esp
+let shadowActive=false;
+let phInitialized=false;
+let selectedPhrases=new Set(PHRASES.map((_,i)=>i)); // all selected by default
+let selectorOpen=false;
+
+function initPhrases(){
+  if(!phInitialized){
+    phInitialized=true;
+    buildPhraseSelector();
+    buildPhraseDeck(getActivePhrases());
+  }
+}
+
+function getActivePhrases(){
+  return PHRASES.filter((_,i)=>selectedPhrases.has(i));
+}
+
+function buildPhraseSelector(){
+  const list=document.getElementById('phrase-list');
+  list.innerHTML='';
+  PHRASES.forEach((p,i)=>{
+    const item=document.createElement('div');
+    item.className='phrase-item'+(selectedPhrases.has(i)?' selected':'');
+    item.id='ps-item-'+i;
+    item.innerHTML=`
+      <div class="phrase-item-check">${selectedPhrases.has(i)?'✓':''}</div>
+      <div class="phrase-item-text">
+        <div class="phrase-item-h">${p.h}</div>
+        <div class="phrase-item-es">${p.es}</div>
+      </div>
+      <button class="phrase-item-play" onclick="event.stopPropagation();speakText('${p.h.replace(/'/g,"\\'")}',zhVoice,'zh-CN',0.75)" title="Escuchar">🔊</button>
+    `;
+    item.onclick=()=>togglePhraseSelection(i);
+    list.appendChild(item);
+  });
+}
+
+function togglePhraseSelection(i){
+  if(selectedPhrases.has(i)) selectedPhrases.delete(i);
+  else selectedPhrases.add(i);
+  const item=document.getElementById('ps-item-'+i);
+  const check=item.querySelector('.phrase-item-check');
+  if(selectedPhrases.has(i)){item.className='phrase-item selected';check.textContent='✓';}
+  else{item.className='phrase-item';check.textContent='';}
+}
+
+function psSelectAll(){
+  PHRASES.forEach((_,i)=>selectedPhrases.add(i));
+  buildPhraseSelector();
+}
+
+function psSelectNone(){
+  selectedPhrases.clear();
+  buildPhraseSelector();
+}
+
+function applySelection(){
+  const active=getActivePhrases();
+  if(!active.length){alert('Selecciona al menos una frase.');return;}
+  toggleSelector(false);
+  buildPhraseDeck(active);
+}
+
+function toggleSelector(forceClose){
+  if(forceClose===false){selectorOpen=false;}
+  else{selectorOpen=!selectorOpen;}
+  document.getElementById('phrase-selector').className='phrase-selector'+(selectorOpen?' on':'');
+  document.getElementById('sel-toggle-btn').textContent=selectorOpen?'✕ Cerrar':'☰ Seleccionar frases';
+}
+
+function buildPhraseDeck(src){
+  phDeck=shuffle([...src]);
+  phIdx=0;phOk=0;phNo=0;phWrong=[];phFlipped=false;
+  updatePhraseStats();
+  document.getElementById('ph-done-box').style.display='none';
+  document.getElementById('ph-actions').style.display='flex';
+  showPhraseCard();
+}
+
+function setPhraseMode(m){
+  phraseMode=m;
+  ['listen','shadow','esp','step'].forEach(x=>{
+    const b=document.getElementById('pm-'+x);
+    if(b) b.className='mb'+(m===x?' on':'');
+  });
+  // shadow bar
+  if(m==='shadow'){
+    document.getElementById('shadow-bar').className='shadow-bar on';
+    shadowActive=true;
+  } else {
+    document.getElementById('shadow-bar').className='shadow-bar';
+    shadowActive=false;
+  }
+  // paso a paso UI
+  const isStep=(m==='step');
+  document.getElementById('step-box').className='step-box'+(isStep?' on':'');
+  document.getElementById('step-nav').style.display=isStep?'flex':'none';
+  document.getElementById('step-full-btn').style.display=isStep?'block':'none';
+  // card area: hide/show flip card
+  document.querySelector('.card-area').style.display=isStep?'none':'flex';
+  document.querySelector('.audio-row').style.display=isStep?'none':'flex';
+  document.getElementById('ph-actions').style.display=isStep?'none':'flex';
+
+  showPhraseCard();
+}
+
+function stopShadow(){
+  shadowActive=false;
+  setPhraseMode('listen');
+}
+
+function showPhraseCard(){
+  if(phIdx>=phDeck.length){showPhraseDone();return;}
+  const c=phDeck[phIdx];
+  phFlipped=false;
+
+  // PASO A PASO mode — don't use the flip card at all
+  if(phraseMode==='step'){
+    initStep(c);
+    updatePhraseProgress();
+    return;
+  }
+
+  document.getElementById('ph-ci').className='card-inner';
+
+  if(phraseMode==='esp'){
+    document.getElementById('ph-icon').style.display='none';
+    document.getElementById('ph-hanzi').textContent=c.es;
+    document.getElementById('ph-hanzi').style.fontSize='15px';
+    document.getElementById('ph-hint').textContent='Toca para ver la frase en chino';
+  } else {
+    document.getElementById('ph-icon').style.display='block';
+    document.getElementById('ph-icon').textContent=shadowActive?'🎙️':'🔊';
+    document.getElementById('ph-hanzi').textContent=c.h;
+    document.getElementById('ph-hanzi').style.fontSize='34px';
+    document.getElementById('ph-hint').textContent=shadowActive
+      ?'Escucha → repite → toca para ver traducción'
+      :'Toca para ver el significado';
+  }
+
+  document.getElementById('ph-esp').textContent=c.es;
+  document.getElementById('ph-pinyin').textContent=c.p;
+  document.getElementById('ph-hanzi-back').textContent=c.h;
+
+  updatePhraseProgress();
+
+  if(phraseMode==='listen'||phraseMode==='shadow'){
+    setTimeout(()=>speakPhraseTwice(c.h,0.75),400);
+  }
+}
+
+function updatePhraseProgress(){
+  const pct=Math.round(phIdx/phDeck.length*100);
+  document.getElementById('ph-prog-fill').style.width=pct+'%';
+  document.getElementById('ph-prog-label').textContent='Frase '+(phIdx+1)+' de '+phDeck.length;
+  document.getElementById('ph-s-left').textContent=phDeck.length-phIdx;
+}
+
+function flipPhrase(){
+  phFlipped=!phFlipped;
+  document.getElementById('ph-ci').className='card-inner'+(phFlipped?' flipped':'');
+}
+
+function repeatPhrase(){
+  if(phIdx>=phDeck.length)return;
+  const c=phDeck[phIdx];
+  const btn=document.getElementById('btn-phrase-repeat');
+  btn.classList.add('playing');
+  speakPhraseTwice(c.h,0.75,()=>btn.classList.remove('playing'));
+}
+
+function repeatPhraseSlow(){
+  if(phIdx>=phDeck.length)return;
+  const c=phDeck[phIdx];
+  const btn=document.getElementById('btn-phrase-slow');
+  btn.classList.add('playing');
+  speakPhraseTwice(c.h,0.5,()=>btn.classList.remove('playing'));
+}
+
+function phraseAnswer(knew){
+  if(phraseMode==='step'){phIdx++;updatePhraseStats();showPhraseCard();return;}
+  if(!phFlipped){flipPhrase();return;}
+  if(knew)phOk++;else{phNo++;phWrong.push(phDeck[phIdx]);}
+  phIdx++;updatePhraseStats();showPhraseCard();
+}
+
+function phraseSkip(){
+  if(phraseMode==='step'){phIdx++;updatePhraseStats();showPhraseCard();return;}
+  if(!phFlipped){flipPhrase();return;}
+  phWrong.push(phDeck[phIdx]);phNo++;phIdx++;
+  updatePhraseStats();showPhraseCard();
+}
+
+function updatePhraseStats(){
+  document.getElementById('ph-s-ok').textContent=phOk;
+  document.getElementById('ph-s-no').textContent=phNo;
+  document.getElementById('ph-s-left').textContent=Math.max(0,phDeck.length-phIdx);
+  updatePhraseProgress();
+}
+
+function showPhraseDone(){
+  speechSynthesis.cancel();
+  document.getElementById('ph-done-box').style.display='block';
+  document.getElementById('ph-actions').style.display='none';
+  document.getElementById('ph-prog-fill').style.width='100%';
+  document.getElementById('ph-done-msg').textContent='Sabías '+phOk+' de '+phDeck.length+'. '+(phWrong.length?'Tienes '+phWrong.length+' para repasar.':'¡Perfecto, todas correctas! 🌟');
+}
+
+function restartPhrases(t){
+  document.getElementById('ph-done-box').style.display='none';
+  document.getElementById('ph-actions').style.display='flex';
+  buildPhraseDeck(t==='wrong'&&phWrong.length?phWrong:getActivePhrases());
+}
+
+/* ===================== PASO A PASO ===================== */
+// Split a phrase into word tokens using pinyin spaces as guide
+// We split the hanzi by matching character counts per pinyin token
+function splitPhraseIntoWords(c){
+  // pinyin tokens split by space (strip punctuation first)
+  const pinyinClean=c.p.replace(/[，。？！、,.\?!]/g,'');
+  const pTokens=pinyinClean.trim().split(/\s+/).filter(Boolean);
+  // For hanzi we need to know how many chars per token.
+  // Strategy: distribute hanzi chars to match pinyin token count.
+  // Each pinyin token = one chinese "word" (1 or 2 chars typically).
+  // We'll use a heuristic: split hanzi greedily by 2 chars, fallback 1.
+  const hanziClean=c.h.replace(/[，。？！、,.\?!\s]/g,'');
+  const words=[];
+  let hPos=0;
+  for(let i=0;i<pTokens.length;i++){
+    const remaining=pTokens.length-i;
+    const hRemaining=hanziClean.length-hPos;
+    // guess 2 chars if enough left and not the last token squeezed
+    let take=Math.round(hRemaining/remaining);
+    if(take<1)take=1;
+    if(take>3)take=2; // cap at 2 for safety
+    const hw=hanziClean.slice(hPos,hPos+take);
+    hPos+=take;
+    words.push({h:hw,p:pTokens[i]});
+  }
+  // if there's leftover hanzi, append to last word
+  if(hPos<hanziClean.length&&words.length){
+    words[words.length-1].h+=hanziClean.slice(hPos);
+  }
+  return words;
+}
+
+let stepWords=[];
+let stepIdx=0;
+let stepFullVisible=false;
+
+function initStep(phrase){
+  stepWords=splitPhraseIntoWords(phrase);
+  stepIdx=0;
+  stepFullVisible=false;
+  document.getElementById('step-phrase-full').className='step-phrase-full';
+  document.getElementById('step-phrase-full').innerHTML=
+    '<span style="color:#1a1a1a;font-size:15px;">'+phrase.h+'</span><br>'
+    +'<span style="color:#4a90d9;font-size:12px;">'+phrase.p+'</span><br>'
+    +'<span style="color:#888;font-size:12px;">'+phrase.es+'</span>';
+  renderStep();
+}
+
+function renderStep(){
+  if(!stepWords.length)return;
+  const w=stepWords[stepIdx];
+  document.getElementById('step-counter').textContent='Palabra '+(stepIdx+1)+' de '+stepWords.length;
+  document.getElementById('step-hanzi').textContent=w.h;
+  document.getElementById('step-pinyin').textContent=w.p;
+  // auto speak word
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(w.h);
+    if(zhVoice){u.voice=zhVoice;u.lang=zhVoice.lang;}else u.lang='zh-CN';
+    u.rate=0.75;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  },200);
+}
+
+function stepNext(){
+  if(stepIdx<stepWords.length-1){
+    stepIdx++;
+    renderStep();
+  } else {
+    // finished all words — show full phrase audio and next card option
+    speechSynthesis.cancel();
+    const c=phDeck[phIdx];
+    speakPhraseTwice(c.h,0.7,null);
+    // show a "siguiente frase" action
+    document.getElementById('step-hanzi').textContent='✅';
+    document.getElementById('step-pinyin').textContent='¡Frase completa!';
+    document.getElementById('step-counter').textContent='Fin · escucha la frase entera';
+    // reveal full text
+    stepFullVisible=true;
+    document.getElementById('step-phrase-full').className='step-phrase-full on';
+  }
+}
+
+function stepPrev(){
+  if(stepIdx>0){stepIdx--;renderStep();}
+}
+
+function toggleStepFull(){
+  stepFullVisible=!stepFullVisible;
+  document.getElementById('step-phrase-full').className='step-phrase-full'+(stepFullVisible?' on':'');
+}
+
+/* ===================== QUIZ ===================== */
+let quizSource=HOBBIES;
+let quizDeck=[],quizIdx=0,quizOk=0,quizNo=0;
+let quizAnswered=false;
+let quizInitialized=false;
+
+function setQuizDataset(ds){
+  quizSource=ds==='all'?ALLVOCAB:HOBBIES;
+  document.getElementById('qds-t4').className='ds-btn'+(ds==='t4'?' on':'');
+  document.getElementById('qds-all').className='ds-btn'+(ds==='all'?' on':'');
+  startQuiz();
+}
+
+function initQuiz(){
+  if(!quizInitialized){quizInitialized=true;startQuiz();}
+}
+
+function startQuiz(){
+  quizDeck=shuffle([...quizSource]);
+  quizIdx=0;quizOk=0;quizNo=0;quizAnswered=false;
+  document.getElementById('quiz-score').style.display='none';
+  document.getElementById('quiz-card').style.display='block';
+  document.getElementById('quiz-options').style.display='grid';
+  document.getElementById('quiz-next-btn').style.display='none';
+  updateQuizStats();
+  showQuizQuestion();
+}
+
+function showQuizQuestion(){
+  if(quizIdx>=quizDeck.length){showQuizScore();return;}
+  quizAnswered=false;
+  const c=quizDeck[quizIdx];
+
+  document.getElementById('quiz-hanzi').textContent=c.h;
+  document.getElementById('quiz-pinyin').textContent='';
+  document.getElementById('quiz-feedback').textContent='';
+  document.getElementById('quiz-feedback').className='quiz-feedback';
+  document.getElementById('quiz-next-btn').style.display='none';
+
+  // auto-speak
+  setTimeout(()=>speakText(c.h,zhVoice,'zh-CN',0.8),300);
+
+  // build 4 options: 1 correct + 3 random wrong
+  const pool=quizSource.filter(x=>x.h!==c.h);
+  const wrong=shuffle([...pool]).slice(0,3);
+  const opts=shuffle([c,...wrong]);
+
+  const container=document.getElementById('quiz-options');
+  container.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='qopt';
+    btn.textContent=opt.es;
+    btn.onclick=()=>checkQuiz(btn,opt.h===c.h,c);
+    container.appendChild(btn);
+  });
+  updateQuizStats();
+}
+
+function checkQuiz(btn,isCorrect,correct){
+  if(quizAnswered)return;
+  quizAnswered=true;
+
+  // mark selected
+  if(isCorrect){
+    btn.className='qopt correct';
+    quizOk++;
+    document.getElementById('quiz-feedback').textContent='✓ ¡Correcto!';
+    document.getElementById('quiz-feedback').className='quiz-feedback ok';
+  } else {
+    btn.className='qopt wrong';
+    quizNo++;
+    document.getElementById('quiz-feedback').textContent='✗ Era: '+correct.es;
+    document.getElementById('quiz-feedback').className='quiz-feedback ko';
+    // highlight correct answer in green
+    document.querySelectorAll('.qopt').forEach(b=>{
+      if(b.textContent===correct.es) b.className='qopt reveal';
+    });
+  }
+
+  // show pinyin
+  document.getElementById('quiz-pinyin').textContent=correct.p;
+
+  // disable all
+  document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+
+  document.getElementById('quiz-next-btn').style.display='block';
+  quizIdx++;
+  updateQuizStats();
+}
+
+function quizNext(){
+  showQuizQuestion();
+}
+
+function quizSpeak(){
+  const h=document.getElementById('quiz-hanzi').textContent;
+  if(h&&h!=='?') speakText(h,zhVoice,'zh-CN',0.8);
+}
+
+function updateQuizStats(){
+  document.getElementById('q-ok').textContent=quizOk;
+  document.getElementById('q-no').textContent=quizNo;
+  document.getElementById('q-left').textContent=Math.max(0,quizDeck.length-quizIdx);
+}
+
+function showQuizScore(){
+  speechSynthesis.cancel();
+  document.getElementById('quiz-card').style.display='none';
+  document.getElementById('quiz-options').style.display='none';
+  document.getElementById('quiz-next-btn').style.display='none';
+  document.getElementById('quiz-feedback').textContent='';
+  const pct=Math.round(quizOk/quizDeck.length*100);
+  let emoji='🎉',title='¡Ronda completada!';
+  if(pct===100){emoji='🏆';title='¡Perfecto! 100%';}
+  else if(pct>=80){emoji='😄';title='¡Muy bien!';}
+  else if(pct>=50){emoji='🙂';title='Bien, sigue practicando';}
+  else{emoji='📚';title='A repasar un poco más';}
+  document.getElementById('quiz-score-emoji').textContent=emoji;
+  document.getElementById('quiz-score-title').textContent=title;
+  document.getElementById('quiz-score-msg').textContent=quizOk+' correctas de '+quizDeck.length+' ('+pct+'%)';
+  document.getElementById('quiz-score').style.display='block';
+}
+
+/* ===================== PRONUNCIACIÓN ===================== */
+let pronActiveCats=new Set();
+let selectedCard=null;
+let pronSource=ALLVOCAB; // default: all vocab
+
+function setPronDataset(ds){
+  pronSource = ds==='t4' ? HOBBIES : ALLVOCAB;
+  document.getElementById('pds-all').className='ds-btn'+(ds==='all'?' on':'');
+  document.getElementById('pds-t4').className='ds-btn'+(ds==='t4'?' on':'');
+  buildPronCats();
+}
+
+function buildPronCats(){
+  const allC=[...new Set(pronSource.map(x=>x.cat))];
+  pronActiveCats=new Set(allC);
+  const row=document.getElementById('pron-cats');
+  row.innerHTML='';
+  const all=document.createElement('button');
+  all.className='pron-cat-btn on';all.id='pc-ALL';all.textContent='Todas';
+  all.onclick=()=>{
+    const on=pronActiveCats.size===allC.length;
+    pronActiveCats=on?new Set():new Set(allC);
+    allC.forEach(c=>{const b=document.getElementById('pc-'+c);if(b)b.className='pron-cat-btn'+(pronActiveCats.has(c)?' on':'');});
+    all.className='pron-cat-btn'+(pronActiveCats.size===allC.length?' on':'');
+    renderGrid();
+  };
+  row.appendChild(all);
+  allC.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='pron-cat-btn on';b.id='pc-'+cat;b.textContent=cat;
+    b.onclick=()=>{
+      pronActiveCats.has(cat)?pronActiveCats.delete(cat):pronActiveCats.add(cat);
+      b.className='pron-cat-btn'+(pronActiveCats.has(cat)?' on':'');
+      document.getElementById('pc-ALL').className='pron-cat-btn'+(pronActiveCats.size===allC.length?' on':'');
+      renderGrid();
+    };
+    row.appendChild(b);
+  });
+  renderGrid();
+}
+
+function renderGrid(){
+  const q=(document.getElementById('pron-search').value||'').toLowerCase();
+  const filtered=pronSource.filter(x=>{
+    if(!pronActiveCats.has(x.cat))return false;
+    if(q&&!x.h.includes(q)&&!x.es.toLowerCase().includes(q)&&!x.p.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const grid=document.getElementById('pron-grid');
+  const empty=document.getElementById('pron-empty');
+  grid.innerHTML='';
+  empty.style.display=filtered.length?'none':'block';
+  filtered.forEach((item)=>{
+    const card=document.createElement('div');
+    card.className='pron-card';
+    card.innerHTML=`<div class="ph">${item.h}</div><div class="pp">${item.p}</div><div class="pe">${item.es}</div>`;
+    card.onclick=()=>selectPron(item,card);
+    grid.appendChild(card);
+  });
+}
+
+function selectPron(item,cardEl){
+  if(selectedCard) selectedCard.classList.remove('active');
+  selectedCard=cardEl;
+  cardEl.classList.add('active');
+  document.getElementById('pd-hanzi').textContent=item.h;
+  document.getElementById('pd-pinyin').textContent=item.p;
+  document.getElementById('pd-cat').textContent=item.cat;
+  document.getElementById('pd-esp').textContent=item.es;
+
+  // render usos
+  const usosEl=document.getElementById('pd-usos');
+  const usos=item.usos||[];
+  if(usos.length){
+    usosEl.style.display='block';
+    usosEl.innerHTML='<div class="pd-usos-title">También en…</div>';
+    usos.forEach(u=>{
+      const chip=document.createElement('div');
+      chip.className='pd-uso-chip';
+      chip.innerHTML=`<span class="uc-h">${u.h}</span><span style="display:flex;flex-direction:column;gap:1px;"><span class="uc-p">${u.p}</span><span class="uc-es">${u.es}</span></span><span style="font-size:14px;color:#bbb;">🔊</span>`;
+      chip.onclick=()=>speakText(u.h,zhVoice,'zh-CN',0.8);
+      usosEl.appendChild(chip);
+    });
+  } else {
+    usosEl.style.display='none';
+    usosEl.innerHTML='';
+  }
+
+  document.getElementById('pron-detail').className='pron-detail on';
+  speakText(item.h,zhVoice,'zh-CN',0.85);
+  document.getElementById('pron-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function pronSpeak(type){
+  const h=document.getElementById('pd-hanzi').textContent;
+  const es=document.getElementById('pd-esp').textContent;
+  if(!h||h==='—')return;
+  let u;
+  if(type==='zh') u=speakText(h,zhVoice,'zh-CN',0.85);
+  else if(type==='es') u=speakText(es,esVoice,'es-ES',0.85);
+  else u=speakText(h,zhVoice,'zh-CN',0.5);
+  const btnId=type==='es'?'pd-btn-es':type==='slow'?'pd-btn-slow':'pd-btn-zh';
+  const btn=document.getElementById(btnId);
+  if(btn){btn.classList.add('playing');if(u)u.onend=()=>btn.classList.remove('playing');}
+}
+
+/* ===================== INIT ===================== */
+buildFilters();
+buildPronCats();
+renderGrid();
+
+/* ===================== PWA / INSTALL BANNER ===================== */
+// Generate a canvas icon so iPhone has something to use as app icon
+(function(){
+  try {
+    const c=document.createElement('canvas');
+    c.width=180;c.height=180;
+    const ctx=c.getContext('2d');
+    // background
+    ctx.fillStyle='#1a1a1a';
+    ctx.beginPath();
+    ctx.roundRect(0,0,180,180,36);
+    ctx.fill();
+    // character
+    ctx.fillStyle='#fff';
+    ctx.font='bold 100px serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('汉',90,90);
+    const dataUrl=c.toDataURL('image/png');
+    document.getElementById('apple-touch-icon').href=dataUrl;
+  } catch(e){}
+})();
+
+// Show install banner only on iOS Safari, only if not already installed
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  const dismissed=sessionStorage.getItem('install-dismissed');
+  if(isIOS && !isStandalone && !dismissed){
+    document.getElementById('install-banner').className='install-banner on';
+  }
+})();
+
+function dismissBanner(){
+  document.getElementById('install-banner').className='install-banner';
+  sessionStorage.setItem('install-dismissed','1');
+}
+</script>
+</body>
+</html>
