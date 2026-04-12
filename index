@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>汉字 – Chino Mandarín</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="汉字">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#c0392b">
+<link id="apple-touch-icon" rel="apple-touch-icon" href="">
+<style>
+:root{
+  --red:#c0392b;--red2:#e74c3c;--red-light:#fdf0ee;--red-border:#f5c0bb;
+  --black:#1a1a1a;--dark:#2c2c2c;
+  --gold:#d4a843;--gold-light:#fdf6e3;
+  --bg:#f7f3f0;--card:#fff;
+  --text:#1a1a1a;--muted:#888;--border:#e8e4e0;
+  --green:#27ae60;--green-light:#f0faf4;--green-border:#a5e0b8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(1rem + env(safe-area-inset-bottom));}
+
+/* ===== INTRO SCREEN ===== */
+#screen-intro{
+  position:fixed;inset:0;z-index:100;
+  background:var(--black);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;
+}
+.intro-deco{
+  width:120px;height:120px;border-radius:28px;
+  background:linear-gradient(135deg,var(--red),#8b1010);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;margin-bottom:1.5rem;
+  box-shadow:0 8px 32px rgba(192,57,43,.5);
+}
+.intro-title{font-size:32px;font-weight:700;color:#fff;margin-bottom:.4rem;letter-spacing:-1px;}
+.intro-sub{font-size:15px;color:rgba(255,255,255,.55);margin-bottom:.25rem;}
+.intro-badge{display:inline-block;background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.35);color:var(--gold);font-size:12px;padding:3px 12px;border-radius:99px;margin-bottom:2.5rem;}
+.intro-features{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:320px;margin-bottom:2.5rem;}
+.intro-feat{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;}
+.intro-feat-icon{font-size:20px;width:28px;text-align:center;}
+.intro-feat-text{font-size:13px;color:rgba(255,255,255,.75);}
+.btn-start{
+  width:100%;max-width:320px;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--red2),var(--red));
+  color:#fff;font-size:17px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 20px rgba(192,57,43,.45);letter-spacing:.3px;
+  transition:transform .1s,box-shadow .1s;
+}
+.btn-start:active{transform:scale(.97);box-shadow:0 2px 10px rgba(192,57,43,.3);}
+
+/* ===== APP SHELL ===== */
+#screen-app{display:none;}
+#screen-app.on{display:block;}
+.app{max-width:520px;margin:0 auto;padding:1rem;}
+
+/* ===== TOP BAR ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-top:calc(env(safe-area-inset-top) + .25rem);}
+.topbar-logo{display:flex;align-items:center;gap:8px;}
+.topbar-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--red2),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;}
+.topbar-name{font-size:16px;font-weight:700;color:var(--black);}
+.topbar-sub{font-size:11px;color:var(--muted);}
+.voice-pill{font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:3px 10px;border-radius:99px;}
+
+/* ===== NAV ===== */
+.nav{display:flex;background:var(--card);border-radius:12px;border:1px solid var(--border);padding:4px;gap:3px;margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex:0 0 auto;padding:7px 10px;border-radius:9px;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.nav-btn.on{background:var(--red);color:#fff;}
+
+/* ===== SECTIONS ===== */
+.section{display:none;}
+.section.on{display:block;}
+
+/* ===== DATASET BUTTONS ===== */
+.dataset-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.ds-btn{padding:5px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#555;font-size:11px;cursor:pointer;font-weight:500;}
+.ds-btn.on{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* ===== FILTERS ===== */
+.filter-wrap{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem 1rem;margin-bottom:.75rem;}
+.filter-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;}
+.fb{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.fb.on{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* ===== MODE BUTTONS ===== */
+.mode-row{display:flex;gap:6px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.mb{padding:5px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#555;font-size:12px;cursor:pointer;}
+.mb.on{background:var(--black);color:#fff;border-color:var(--black);}
+
+/* ===== PROGRESS ===== */
+.prog-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.prog-wrap{height:4px;background:#e8e4e0;border-radius:99px;margin-bottom:1.25rem;}
+.prog-fill{height:4px;background:var(--red);border-radius:99px;transition:width .4s;}
+
+/* ===== CARD ===== */
+.autoplay-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.5rem;}
+.autoplay-row label{font-size:12px;color:#777;cursor:pointer;}
+.card-area{perspective:1000px;display:flex;justify-content:center;margin-bottom:.75rem;}
+.card-outer{width:100%;height:240px;cursor:pointer;user-select:none;}
+.card-outer.phrase-mode{height:240px;}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s;}
+.card-inner.flipped{transform:rotateY(180deg);}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;border:1px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.back{transform:rotateY(180deg);}
+.hanzi{font-size:58px;line-height:1;}
+.pinyin{font-size:16px;color:var(--muted);}
+.cat-badge{font-size:11px;color:#aaa;background:var(--bg);padding:2px 10px;border-radius:99px;}
+.hint{font-size:11px;color:#ccc;margin-top:2px;}
+.esp{font-size:22px;font-weight:600;color:var(--black);text-align:center;line-height:1.3;}
+
+/* front accent */
+.face.front::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:16px 16px 0 0;opacity:.6;}
+
+/* ===== AUDIO BUTTONS ===== */
+.audio-row{display:flex;gap:8px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.audio-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:#333;font-size:13px;cursor:pointer;}
+.audio-btn:hover{background:var(--bg);}
+.audio-btn.playing{border-color:var(--green);color:var(--green);background:var(--green-light);}
+
+/* ===== ACTIONS ===== */
+.actions{display:flex;gap:10px;justify-content:center;margin-bottom:1rem;}
+.btn-no{padding:11px 28px;border-radius:10px;border:1px solid var(--red-border);background:var(--card);color:var(--red);font-size:15px;cursor:pointer;font-weight:500;}
+.btn-no:hover{background:var(--red-light);}
+.btn-si{padding:11px 28px;border-radius:10px;border:1px solid var(--green-border);background:var(--card);color:var(--green);font-size:15px;cursor:pointer;font-weight:500;}
+.btn-si:hover{background:var(--green-light);}
+.btn-skip{padding:11px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:15px;cursor:pointer;}
+.btn-skip:hover{background:var(--bg);}
+
+/* ===== STATS ===== */
+.stats{display:flex;gap:10px;justify-content:center;margin-top:.5rem;}
+.stat{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 20px;}
+.stat-n{font-size:22px;font-weight:600;}
+.stat-l{font-size:11px;color:#aaa;}
+
+/* ===== DONE BOX ===== */
+.done-box{text-align:center;background:var(--card);border-radius:16px;border:1px solid var(--border);padding:2rem 1rem;margin-top:.5rem;}
+.done-box h3{font-size:20px;font-weight:600;margin-bottom:.5rem;}
+.done-box p{font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.5;}
+.restart-btn{padding:10px 22px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:#333;font-size:14px;cursor:pointer;margin:4px;font-weight:500;}
+
+/* ===== PHRASE CARD ===== */
+.phrase-hanzi{font-size:34px;line-height:1.4;text-align:center;font-weight:500;color:var(--black);}
+.phrase-back-esp{font-size:17px;font-weight:600;color:var(--black);text-align:center;line-height:1.4;margin-bottom:4px;}
+.phrase-back-pinyin{font-size:13px;color:var(--red);text-align:center;line-height:1.5;}
+.phrase-back-hanzi{font-size:15px;color:#aaa;text-align:center;margin-top:4px;}
+.shadow-bar{background:linear-gradient(135deg,var(--black),var(--dark));border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:none;}
+.shadow-bar.on{display:flex;align-items:center;gap:10px;}
+.shadow-icon{font-size:22px;}
+.shadow-text{flex:1;}
+.shadow-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px;}
+.shadow-sub{font-size:11px;color:rgba(255,255,255,.6);}
+.shadow-stop{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.btn-repeat{padding:8px 16px;border-radius:10px;border:1px solid var(--red-border);background:var(--red-light);color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.btn-repeat:hover{background:#f9dbd8;}
+.btn-repeat.playing{border-color:var(--red);background:var(--red);color:#fff;}
+
+/* Phrase selector */
+.phrase-selector{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem;margin-bottom:.75rem;display:none;}
+.phrase-selector.on{display:block;}
+.ps-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:6px;}
+.ps-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+.ps-actions{display:flex;gap:5px;}
+.ps-act-btn{padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.ps-act-btn.primary{background:var(--red);color:#fff;border-color:var(--red);}
+.phrase-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.phrase-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#fafafa;cursor:pointer;transition:all .15s;}
+.phrase-item.selected{border-color:var(--red);background:var(--red-light);}
+.phrase-item-check{width:18px;height:18px;border-radius:5px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+.phrase-item.selected .phrase-item-check{background:var(--red);border-color:var(--red);color:#fff;}
+.phrase-item-text{flex:1;min-width:0;}
+.phrase-item-h{font-size:16px;color:var(--black);font-weight:500;}
+.phrase-item-es{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.phrase-item-play{padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);font-size:12px;cursor:pointer;flex-shrink:0;}
+.sel-toggle-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--red-border);background:var(--red-light);color:var(--red);font-size:11px;cursor:pointer;font-weight:500;}
+
+/* ===== PRONUNCIACIÓN ===== */
+.pron-search{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:15px;margin-bottom:.75rem;outline:none;}
+.pron-search:focus{border-color:var(--red);}
+.pron-cat-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pron-cat-btn{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.pron-cat-btn.on{background:var(--red);color:#fff;border-color:var(--red);}
+.pron-ds-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pron-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:1rem;}
+.pron-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;user-select:none;}
+.pron-card:hover{background:var(--red-light);border-color:var(--red-border);}
+.pron-card.active{background:var(--red);border-color:var(--red);}
+.pron-card .ph{font-size:30px;line-height:1;margin-bottom:3px;}
+.pron-card .pp{font-size:10px;color:#aaa;margin-bottom:2px;}
+.pron-card .pe{font-size:10px;color:var(--muted);line-height:1.2;}
+.pron-card.active .pp,.pron-card.active .pe{color:rgba(255,255,255,.75);}
+.pron-card.active .ph{color:#fff;}
+.pron-detail{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:1.5rem;text-align:center;margin-bottom:1rem;display:none;}
+.pron-detail.on{display:block;}
+.pd-hanzi{font-size:72px;line-height:1;margin-bottom:6px;cursor:pointer;}
+.pd-pinyin{font-size:20px;color:var(--muted);margin-bottom:4px;}
+.pd-cat{font-size:12px;color:#aaa;background:var(--bg);padding:2px 12px;border-radius:99px;display:inline-block;margin-bottom:10px;}
+.pd-esp{font-size:18px;font-weight:600;color:var(--black);margin-bottom:14px;}
+.pd-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.pd-btn{padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.pd-btn:hover{background:var(--bg);}
+.pd-btn.playing{border-color:var(--green);color:var(--green);background:var(--green-light);}
+.pron-empty{text-align:center;color:#ccc;font-size:14px;padding:2rem;display:none;}
+
+/* ===== GRAMÁTICA ===== */
+.gram-section{margin-bottom:1.25rem;}
+.gram-title{font-size:13px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;display:flex;align-items:center;gap:6px;}
+.gram-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:1rem;margin-bottom:.6rem;}
+.gram-card-title{font-size:14px;font-weight:600;color:var(--black);margin-bottom:.5rem;}
+.gram-pattern{background:var(--red-light);border:1px solid var(--red-border);border-radius:8px;padding:.5rem .75rem;font-size:13px;color:var(--red);font-family:monospace;margin-bottom:.6rem;}
+.gram-examples{display:flex;flex-direction:column;gap:.5rem;}
+.gram-ex{background:var(--bg);border-radius:8px;padding:.5rem .75rem;cursor:pointer;transition:background .15s;}
+.gram-ex:hover{background:#ede8e3;}
+.gram-ex-zh{font-size:15px;color:var(--black);font-weight:500;margin-bottom:2px;}
+.gram-ex-py{font-size:11px;color:var(--red);margin-bottom:2px;}
+.gram-ex-es{font-size:12px;color:var(--muted);}
+
+/* ===== AUTH MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.on{display:flex;}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:380px;padding:1.5rem;box-shadow:0 8px 40px rgba(0,0,0,.2);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.modal-title{font-size:18px;font-weight:700;color:var(--black);}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;}
+.modal-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;}
+.modal-tab{flex:1;padding:7px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;}
+.modal-tab.on{background:#fff;color:var(--black);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.modal-form{display:flex;flex-direction:column;gap:.6rem;}
+.modal-input{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:14px;outline:none;font-family:inherit;}
+.modal-input:focus{border-color:var(--red);}
+.modal-btn{padding:11px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:.25rem;}
+.modal-btn:hover{background:var(--red2);}
+.modal-msg{font-size:12px;color:var(--red);text-align:center;min-height:16px;}
+.modal-msg.ok{color:var(--green);}
+.btn-login{padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:500;color:var(--black);cursor:pointer;}
+.user-chip{display:flex;align-items:center;gap:6px;cursor:pointer;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--red2),var(--red));display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;}
+.user-name-pill{font-size:12px;font-weight:500;color:var(--black);}
+.btn-logout{padding:3px 8px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--muted);cursor:pointer;}
+/* ===== RESEÑAS ===== */
+.review-login-prompt{background:var(--bg);border-radius:12px;border:1px dashed var(--border);padding:1.5rem;text-align:center;margin-bottom:1rem;}
+.review-login-prompt p{font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.5;}
+.review-login-prompt button{padding:8px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.review-form{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:1rem;margin-bottom:1rem;display:none;}
+.review-form.visible{display:block;}
+.review-form-title{font-size:14px;font-weight:600;color:var(--black);margin-bottom:.75rem;}
+.stars-row{display:flex;gap:6px;margin-bottom:.75rem;}
+.star-btn{font-size:26px;cursor:pointer;opacity:.3;transition:opacity .15s,transform .1s;}
+.star-btn.on{opacity:1;}
+.star-btn:hover{transform:scale(1.15);}
+textarea.review-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:13px;resize:none;outline:none;font-family:inherit;height:80px;}
+textarea.review-input:focus{border-color:var(--red);}
+.review-submit{margin-top:.6rem;padding:9px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;width:100%;}
+.review-submit:hover{background:var(--red2);}
+.reviews-list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+.review-item{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem;}
+.review-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+.review-item-stars{font-size:14px;}
+.review-item-meta{text-align:right;}
+.review-item-author{font-size:11px;font-weight:600;color:var(--red);}
+.review-item-date{font-size:10px;color:#ccc;}
+.review-item-text{font-size:13px;color:#555;line-height:1.5;}
+.reviews-empty{text-align:center;color:#ccc;font-size:13px;padding:1.5rem;}
+/* ===== GRAMÁTICA TEMAS ===== */
+.gram-topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.gram-topic-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem .75rem;text-align:center;cursor:pointer;transition:all .15s;}
+.gram-topic-btn:hover{border-color:var(--red);background:var(--red-light);}
+.gram-topic-btn .gt-icon{font-size:28px;margin-bottom:6px;}
+.gram-topic-btn .gt-label{font-size:13px;font-weight:600;color:var(--black);}
+.gram-topic-btn .gt-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.gram-back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;margin-bottom:1rem;color:var(--black);}
+.gram-content{display:none;}
+.gram-content.on{display:block;}
+.gram-picker{display:block;}
+/* ===== INSTALL BANNER ===== */
+.install-banner{display:none;background:var(--black);border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;align-items:center;gap:10px;}
+.install-banner.on{display:flex;}
+.install-banner-text{flex:1;font-size:12px;color:rgba(255,255,255,.8);line-height:1.4;}
+.install-banner-text b{color:#fff;}
+.install-banner-close{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO SCREEN ===== -->
+<div id="screen-intro">
+  <div class="intro-deco">汉</div>
+  <div class="intro-title">汉字 Chino</div>
+  <div class="intro-sub">Integrated Chinese · Temas 1–4</div>
+  <div class="intro-badge">🎓 Examen oral · Sin internet</div>
+  <div class="intro-features">
+    <div class="intro-feat"><div class="intro-feat-icon">🃏</div><div class="intro-feat-text">Fichas con audio por tema</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">🗣️</div><div class="intro-feat-text">Práctica oral con shadowing</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">📖</div><div class="intro-feat-text">Gramática con ejemplos</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">🔊</div><div class="intro-feat-text">Pronunciación de todos los caracteres</div></div>
+  </div>
+  <button class="btn-start" onclick="startApp()">开始 · Comenzar</button>
+</div>
+
+<!-- ===== APP SCREEN ===== -->
+<div id="screen-app">
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-icon">汉</div>
+      <div>
+        <div class="topbar-name">汉字 Chino</div>
+        <div class="topbar-sub" id="voice-warn">⏳ Cargando voz…</div>
+      </div>
+    </div>
+    <div id="topbar-user">
+      <button class="btn-login" onclick="openAuthModal()">Entrar 👤</button>
+    </div>
+  </div>
+
+  <div class="install-banner" id="install-banner">
+    <div class="install-banner-text"><b>Añade la app a tu pantalla de inicio</b> para usarla sin internet: Safari → Compartir → "Añadir a inicio"</div>
+    <button class="install-banner-close" onclick="dismissBanner()">✕</button>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn on" id="nav-fichas" onclick="showSection('fichas')">🃏 Fichas</button>
+    <button class="nav-btn" id="nav-frases" onclick="showSection('frases')">🗣️ Oral</button>
+    <button class="nav-btn" id="nav-gram" onclick="showSection('gram')">📖 Gramática</button>
+    <button class="nav-btn" id="nav-pron" onclick="showSection('pron')">🔊 Sonidos</button>
+    <button class="nav-btn" id="nav-reviews" onclick="showSection('reviews')">⭐ Reseñas</button>
+  </div>
+
+  <!-- ===== FICHAS ===== -->
+  <div class="section on" id="sec-fichas">
+    <div class="dataset-row" id="ds-row">
+      <button class="ds-btn on" id="ds-t1" onclick="setDataset('t1')">T1</button>
+      <button class="ds-btn" id="ds-t2" onclick="setDataset('t2')">T2</button>
+      <button class="ds-btn" id="ds-t3" onclick="setDataset('t3')">T3</button>
+      <button class="ds-btn" id="ds-t4" onclick="setDataset('t4')">T4 · Hobbies</button>
+      <button class="ds-btn" id="ds-all" onclick="setDataset('all')">📚 Todo</button>
+    </div>
+    <div class="filter-wrap">
+      <div class="filter-title">Categoría</div>
+      <div class="filter-row" id="filters"></div>
+    </div>
+    <div class="mode-row">
+      <button class="mb on" id="m-hanzi" onclick="setMode('hanzi')">汉字 → ES</button>
+      <button class="mb" id="m-esp" onclick="setMode('esp')">ES → 汉字</button>
+      <button class="mb" id="m-oral" onclick="setMode('oral')">🎧 Audio</button>
+    </div>
+    <div class="autoplay-row">
+      <input type="checkbox" id="autoplay-cb" checked onchange="autoplay=this.checked">
+      <label for="autoplay-cb">Auto-audio</label>
+    </div>
+    <div class="prog-label" id="prog-label">Ficha 1 de —</div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="card-area">
+      <div class="card-outer" onclick="flip()">
+        <div class="card-inner" id="ci">
+          <div class="face front">
+            <div class="hanzi" id="f-main"></div>
+            <div class="pinyin" id="f-sub"></div>
+            <div class="cat-badge" id="f-cat"></div>
+            <div class="hint" id="f-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="esp" id="b-main"></div>
+            <div class="pinyin" id="b-pinyin"></div>
+            <div class="hanzi" style="font-size:30px;" id="b-hanzi"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="audio-row">
+      <button class="audio-btn" id="btn-zh" onclick="speak('zh')">🔊 Chino</button>
+      <button class="audio-btn" id="btn-es" onclick="speak('es')">🔊 Español</button>
+    </div>
+    <div class="actions" id="actions">
+      <button class="btn-no" onclick="answer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="skipCard()">→ Saltar</button>
+      <button class="btn-si" onclick="answer(true)">✓ La sé</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-ok" style="color:var(--green);">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="s-no" style="color:var(--red);">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="s-left">—</div><div class="stat-l">Quedan</div></div>
+    </div>
+    <div id="done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="done-msg"></p>
+      <button class="restart-btn" onclick="restart('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restart('wrong')">⚠️ Solo fallos</button>
+    </div>
+  </div>
+
+  <!-- ===== ORAL ===== -->
+  <div class="section" id="sec-frases">
+    <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem 1rem;margin-bottom:.75rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+        <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Modo</div>
+        <button class="sel-toggle-btn" id="sel-toggle-btn" onclick="toggleSelector()">☰ Seleccionar</button>
+      </div>
+      <div class="mode-row" style="margin-bottom:0;">
+        <button class="mb on" id="pm-listen" onclick="setPhraseMode('listen')">🎧 Escuchar</button>
+        <button class="mb" id="pm-shadow" onclick="setPhraseMode('shadow')">🔁 Shadowing</button>
+        <button class="mb" id="pm-esp" onclick="setPhraseMode('esp')">ES → 汉字</button>
+      </div>
+    </div>
+    <div class="phrase-selector" id="phrase-selector">
+      <div class="ps-header">
+        <div class="ps-title">Elige frases a practicar</div>
+        <div class="ps-actions">
+          <button class="ps-act-btn" onclick="psSelectAll()">Todas</button>
+          <button class="ps-act-btn" onclick="psSelectNone()">Ninguna</button>
+          <button class="ps-act-btn primary" onclick="applySelection()">▶ Practicar</button>
+        </div>
+      </div>
+      <div class="phrase-list" id="phrase-list"></div>
+    </div>
+    <div class="shadow-bar" id="shadow-bar">
+      <div class="shadow-icon">🎙️</div>
+      <div class="shadow-text">
+        <div class="shadow-title">Shadowing activo</div>
+        <div class="shadow-sub">Escucha → repite → siguiente</div>
+      </div>
+      <button class="shadow-stop" onclick="stopShadow()">Pausar</button>
+    </div>
+    <div class="prog-label" id="ph-prog-label">Frase 1 de 20</div>
+    <div class="prog-wrap"><div class="prog-fill" id="ph-prog-fill" style="width:0%"></div></div>
+    <div class="card-area">
+      <div class="card-outer phrase-mode" onclick="flipPhrase()">
+        <div class="card-inner" id="ph-ci">
+          <div class="face front">
+            <div style="font-size:26px;margin-bottom:4px;" id="ph-icon">🔊</div>
+            <div class="phrase-hanzi" id="ph-hanzi"></div>
+            <div class="hint" id="ph-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="phrase-back-esp" id="ph-esp"></div>
+            <div class="phrase-back-pinyin" id="ph-pinyin"></div>
+            <div class="phrase-back-hanzi" id="ph-hanzi-back"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="audio-row" style="margin-bottom:.5rem;">
+      <button class="audio-btn btn-repeat" id="btn-phrase-repeat" onclick="repeatPhrase()">🔁 Repetir</button>
+      <button class="audio-btn" id="btn-phrase-slow" onclick="repeatPhraseSlow()">🐢 Despacio</button>
+    </div>
+    <div class="actions" id="ph-actions">
+      <button class="btn-no" onclick="phraseAnswer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="phraseSkip()">→ Saltar</button>
+      <button class="btn-si" onclick="phraseAnswer(true)">✓ La sé</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="ph-s-ok" style="color:var(--green);">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-no" style="color:var(--red);">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-left">20</div><div class="stat-l">Quedan</div></div>
+    </div>
+    <div id="ph-done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="ph-done-msg"></p>
+      <button class="restart-btn" onclick="restartPhrases('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restartPhrases('wrong')">⚠️ Solo fallos</button>
+    </div>
+  </div>
+
+  <!-- ===== GRAMÁTICA ===== -->
+  <!-- ===== GRAMÁTICA ===== -->
+  <div class="section" id="sec-gram">
+    <!-- Topic picker -->
+    <div id="gram-picker" class="gram-picker">
+      <div class="gram-topic-grid">
+        <div class="gram-topic-btn" onclick="showGramTopic(1)">
+          <div class="gt-icon">👋</div>
+          <div class="gt-label">Tema 1</div>
+          <div class="gt-sub">Presentaciones</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(2)">
+          <div class="gt-icon">👨‍👩‍👧</div>
+          <div class="gt-label">Tema 2</div>
+          <div class="gt-sub">Familia</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(3)">
+          <div class="gt-icon">📅</div>
+          <div class="gt-label">Tema 3</div>
+          <div class="gt-sub">Fechas y horas</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(4)">
+          <div class="gt-icon">🎵</div>
+          <div class="gt-label">Tema 4</div>
+          <div class="gt-sub">Hobbies</div>
+        </div>
+      </div>
+    </div>
+    <!-- Tema 1 -->
+    <div class="gram-content" id="gram-t1">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 1 – Presentaciones</div>
+        <div class="gram-card">
+          <div class="gram-card-title">Preguntar el apellido (cortés)</div>
+          <div class="gram-pattern">您贵姓？</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('您贵姓？',zhVoice,'zh-CN')"><div class="gram-ex-zh">您贵姓？</div><div class="gram-ex-py">Nín guì xìng?</div><div class="gram-ex-es">¿Cómo se apellida usted? (formal)</div></div>
+            <div class="gram-ex" onclick="speakText('我姓王，叫王朋。',zhVoice,'zh-CN')"><div class="gram-ex-zh">我姓王，叫王朋。</div><div class="gram-ex-py">Wǒ xìng Wáng, jiào Wáng Péng.</div><div class="gram-ex-es">Me llamo Wang, Wang Peng.</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">Partícula de pregunta 呢</div>
+          <div class="gram-pattern">A + 呢？ → ¿Y A?</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('你好，你呢？',zhVoice,'zh-CN')"><div class="gram-ex-zh">你好，你呢？</div><div class="gram-ex-py">Nǐ hǎo, nǐ ne?</div><div class="gram-ex-es">Hola, ¿y tú?</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#ccc;text-align:center;margin-bottom:1rem;">Toca cualquier ejemplo para escucharlo 🔊</p>
+    </div>
+    <!-- Tema 2 -->
+    <div class="gram-content" id="gram-t2">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 2 – Familia</div>
+        <div class="gram-card">
+          <div class="gram-card-title">Tener / no tener (有 / 没有)</div>
+          <div class="gram-pattern">我有 / 我没有 + objeto</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('我有一个哥哥。',zhVoice,'zh-CN')"><div class="gram-ex-zh">我有一个哥哥。</div><div class="gram-ex-py">Wǒ yǒu yí gè gēge.</div><div class="gram-ex-es">Tengo un hermano mayor.</div></div>
+            <div class="gram-ex" onclick="speakText('我没有姐姐。',zhVoice,'zh-CN')"><div class="gram-ex-zh">我没有姐姐。</div><div class="gram-ex-py">Wǒ méiyǒu jiějie.</div><div class="gram-ex-es">No tengo hermana mayor.</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">都 – todos / ambos</div>
+          <div class="gram-pattern">A 和 B 都 + verbo/adjetivo</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('他们都是学生。',zhVoice,'zh-CN')"><div class="gram-ex-zh">他们都是学生。</div><div class="gram-ex-py">Tāmen dōu shì xuésheng.</div><div class="gram-ex-es">Todos ellos son estudiantes.</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#ccc;text-align:center;margin-bottom:1rem;">Toca cualquier ejemplo para escucharlo 🔊</p>
+    </div>
+    <!-- Tema 3 -->
+    <div class="gram-content" id="gram-t3">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 3 – Fechas y horas</div>
+        <div class="gram-card">
+          <div class="gram-card-title">Orden de fecha en chino</div>
+          <div class="gram-pattern">年 → 月 → 号 → 星期 → 点</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('今天是三月十二号星期四。',zhVoice,'zh-CN')"><div class="gram-ex-zh">今天是三月十二号星期四。</div><div class="gram-ex-py">Jīntiān shì sān yuè shí'èr hào xīngqīsì.</div><div class="gram-ex-es">Hoy es el jueves 12 de marzo.</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">太…了 – demasiado</div>
+          <div class="gram-pattern">太 + adjetivo + 了</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('太好了！',zhVoice,'zh-CN')"><div class="gram-ex-zh">太好了！</div><div class="gram-ex-py">Tài hǎo le!</div><div class="gram-ex-es">¡Genial! / ¡Qué bien!</div></div>
+            <div class="gram-ex" onclick="speakText('太忙了。',zhVoice,'zh-CN')"><div class="gram-ex-zh">太忙了。</div><div class="gram-ex-py">Tài máng le.</div><div class="gram-ex-es">Estoy demasiado ocupado/a.</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#ccc;text-align:center;margin-bottom:1rem;">Toca cualquier ejemplo para escucharlo 🔊</p>
+    </div>
+    <!-- Tema 4 -->
+    <div class="gram-content" id="gram-t4">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 4 – Hobbies</div>
+        <div class="gram-card">
+          <div class="gram-card-title">喜欢 – gustar (+ verbo directo)</div>
+          <div class="gram-pattern">我喜欢 + verbo (+ objeto)</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('我喜欢听音乐。',zhVoice,'zh-CN')"><div class="gram-ex-zh">我喜欢听音乐。</div><div class="gram-ex-py">Wǒ xǐhuān tīng yīnyuè.</div><div class="gram-ex-es">Me gusta escuchar música.</div></div>
+            <div class="gram-ex" onclick="speakText('你喜欢不喜欢看电影？',zhVoice,'zh-CN')"><div class="gram-ex-zh">你喜欢不喜欢看电影？</div><div class="gram-ex-py">Nǐ xǐhuān bu xǐhuān kàn diànyǐng?</div><div class="gram-ex-es">¿Te gusta ver películas? (forma A-no-A)</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">因为…所以… – porque…por eso…</div>
+          <div class="gram-pattern">因为 + causa，所以 + resultado</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('因为昨天你请我吃饭，所以今天我请你看电影。',zhVoice,'zh-CN')"><div class="gram-ex-zh">因为昨天你请我吃饭，所以今天我请你看电影。</div><div class="gram-ex-py">Yīnwèi zuótiān nǐ qǐng wǒ chī fàn, suǒyǐ jīntiān wǒ qǐng nǐ kàn diànyǐng.</div><div class="gram-ex-es">Porque ayer me invitaste a cenar, hoy yo te invito al cine.</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">Proponer un plan – 怎么样？</div>
+          <div class="gram-pattern">我们 + plan + 怎么样？</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('今天晚上去看电影，怎么样？',zhVoice,'zh-CN')"><div class="gram-ex-zh">今天晚上去看电影，怎么样？</div><div class="gram-ex-py">Jīntiān wǎnshang qù kàn diànyǐng, zěnmeyàng?</div><div class="gram-ex-es">Esta noche vamos al cine, ¿qué te parece?</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#ccc;text-align:center;margin-bottom:1rem;">Toca cualquier ejemplo para escucharlo 🔊</p>
+    </div>
+  </div>
+  </div>
+
+  <!-- ===== PRONUNCIACIÓN ===== -->
+  <div class="section" id="sec-pron">
+    <input class="pron-search" id="pron-search" placeholder="Buscar hanzi, pinyin o significado…" oninput="renderGrid()">
+    <div class="pron-ds-row" id="pron-ds-row">
+      <button class="ds-btn on" id="pds-all" onclick="setPronDs('all')">Todo</button>
+      <button class="ds-btn" id="pds-t1" onclick="setPronDs('t1')">T1</button>
+      <button class="ds-btn" id="pds-t2" onclick="setPronDs('t2')">T2</button>
+      <button class="ds-btn" id="pds-t3" onclick="setPronDs('t3')">T3</button>
+      <button class="ds-btn" id="pds-t4" onclick="setPronDs('t4')">T4</button>
+    </div>
+    <div class="pron-cat-row" id="pron-cats"></div>
+    <div class="pron-detail" id="pron-detail">
+      <div class="pd-hanzi" id="pd-hanzi" onclick="pronSpeak('zh')">—</div>
+      <div class="pd-pinyin" id="pd-pinyin"></div>
+      <div class="pd-cat" id="pd-cat"></div>
+      <div class="pd-esp" id="pd-esp"></div>
+      <div class="pd-btns">
+        <button class="pd-btn" id="pd-btn-zh" onclick="pronSpeak('zh')">🔊 Normal</button>
+        <button class="pd-btn" id="pd-btn-es" onclick="pronSpeak('es')">🔊 ES</button>
+        <button class="pd-btn" id="pd-btn-slow" onclick="pronSpeak('slow')">🐢 Lento</button>
+      </div>
+    </div>
+    <div class="pron-grid" id="pron-grid"></div>
+    <div class="pron-empty" id="pron-empty">No se encontraron caracteres</div>
+  </div>
+
+  <!-- ===== RESEÑAS ===== -->
+  <div class="section" id="sec-reviews">
+    <div id="review-login-prompt" class="review-login-prompt">
+      <p>Inicia sesión para dejar tu reseña con tu nombre.<br>Todos los usuarios verán todas las reseñas.</p>
+      <button onclick="openAuthModal()">Entrar / Registrarse 👤</button>
+    </div>
+    <div class="review-form" id="review-form">
+      <div class="review-form-title">💬 Deja tu opinión</div>
+      <div class="stars-row" id="stars-row">
+        <span class="star-btn" onclick="setStars(1)">⭐</span>
+        <span class="star-btn" onclick="setStars(2)">⭐</span>
+        <span class="star-btn" onclick="setStars(3)">⭐</span>
+        <span class="star-btn" onclick="setStars(4)">⭐</span>
+        <span class="star-btn" onclick="setStars(5)">⭐</span>
+      </div>
+      <textarea class="review-input" id="review-text" placeholder="¿Qué mejorarías? ¿Qué te ha ayudado más? Escribe aquí…"></textarea>
+      <button class="review-submit" onclick="submitReview()">Enviar reseña</button>
+    </div>
+    <div class="reviews-list" id="reviews-list"></div>
+    <div class="reviews-empty" id="reviews-empty" style="display:none;">Sé el primero en dejar una reseña 🙌</div>
+  </div>
+
+</div><!-- .app -->
+</div><!-- #screen-app -->
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-overlay" id="auth-modal" onclick="closeAuthModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">👤 Tu cuenta</div>
+      <button class="modal-close" onclick="closeAuthModal()">×</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab on" id="tab-login" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button class="modal-tab" id="tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div id="auth-login-form" class="modal-form">
+      <input class="modal-input" id="login-email" type="email" placeholder="Email" autocomplete="email">
+      <input class="modal-input" id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password">
+      <div class="modal-msg" id="login-msg"></div>
+      <button class="modal-btn" onclick="doLogin()">Entrar</button>
+    </div>
+    <div id="auth-register-form" class="modal-form" style="display:none;">
+      <input class="modal-input" id="reg-name" type="text" placeholder="Tu nombre (ej: María)" autocomplete="name">
+      <input class="modal-input" id="reg-email" type="email" placeholder="Email" autocomplete="email">
+      <input class="modal-input" id="reg-pass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password">
+      <div class="modal-msg" id="reg-msg"></div>
+      <button class="modal-btn" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+</div><!-- #screen-app -->
+
+<script>
+/* ===================== DATA ===================== */
+const T1=[
+  {h:"你",p:"nǐ",cat:"Pronombre",es:"tú"},
+  {h:"好",p:"hǎo",cat:"Adjetivo",es:"bueno / bien"},
+  {h:"请",p:"qǐng",cat:"Verbo",es:"por favor / invitar"},
+  {h:"问",p:"wèn",cat:"Verbo",es:"preguntar"},
+  {h:"贵",p:"guì",cat:"Adjetivo",es:"honorable / caro"},
+  {h:"姓",p:"xìng",cat:"Verbo",es:"apellidarse"},
+  {h:"我",p:"wǒ",cat:"Pronombre",es:"yo"},
+  {h:"呢",p:"ne",cat:"Partícula",es:"¿y…? (partícula)"},
+  {h:"小姐",p:"xiǎojiě",cat:"Sustantivo",es:"señorita"},
+  {h:"叫",p:"jiào",cat:"Verbo",es:"llamarse"},
+  {h:"什么",p:"shénme",cat:"Interrogativo",es:"qué"},
+  {h:"名字",p:"míngzi",cat:"Sustantivo",es:"nombre"},
+  {h:"先生",p:"xiānsheng",cat:"Sustantivo",es:"señor / marido"},
+  {h:"中国",p:"Zhōngguó",cat:"Nombre propio",es:"China"},
+  {h:"北京",p:"Běijīng",cat:"Nombre propio",es:"Beijing"},
+  {h:"美国",p:"Měiguó",cat:"Nombre propio",es:"EE.UU."},
+  {h:"纽约",p:"Niǔyuē",cat:"Nombre propio",es:"Nueva York"}
+];
+
+const T2=[
+  {h:"那",p:"nà",cat:"Pronombre",es:"eso / aquel"},
+  {h:"的",p:"de",cat:"Partícula",es:"(posesivo / descriptivo)"},
+  {h:"照片",p:"zhàopiàn",cat:"Sustantivo",es:"foto"},
+  {h:"这",p:"zhè",cat:"Pronombre",es:"esto / este"},
+  {h:"爸爸",p:"bàba",cat:"Sustantivo",es:"papá"},
+  {h:"妈妈",p:"māma",cat:"Sustantivo",es:"mamá"},
+  {h:"个",p:"gè",cat:"Clasificador",es:"(clasificador general)"},
+  {h:"女",p:"nǚ",cat:"Adjetivo",es:"femenino"},
+  {h:"孩子",p:"háizi",cat:"Sustantivo",es:"niño/a"},
+  {h:"谁",p:"shéi",cat:"Interrogativo",es:"quién"},
+  {h:"她",p:"tā",cat:"Pronombre",es:"ella"},
+  {h:"姐姐",p:"jiějie",cat:"Sustantivo",es:"hermana mayor"},
+  {h:"男",p:"nán",cat:"Adjetivo",es:"masculino"},
+  {h:"弟弟",p:"dìdi",cat:"Sustantivo",es:"hermano menor"},
+  {h:"他",p:"tā",cat:"Pronombre",es:"él"},
+  {h:"哥哥",p:"gēge",cat:"Sustantivo",es:"hermano mayor"},
+  {h:"儿子",p:"érzi",cat:"Sustantivo",es:"hijo"},
+  {h:"有",p:"yǒu",cat:"Verbo",es:"tener / haber"},
+  {h:"女儿",p:"nǚ'ér",cat:"Sustantivo",es:"hija"},
+  {h:"没",p:"méi",cat:"Adverbio",es:"no (negación de 有)"},
+  {h:"家",p:"jiā",cat:"Sustantivo",es:"hogar / familia"},
+  {h:"几",p:"jǐ",cat:"Interrogativo",es:"cuántos"},
+  {h:"口",p:"kǒu",cat:"Clasificador",es:"(contar familia)"},
+  {h:"两",p:"liǎng",cat:"Número",es:"dos (antes de clasificador)"},
+  {h:"妹妹",p:"mèimei",cat:"Sustantivo",es:"hermana menor"},
+  {h:"和",p:"hé",cat:"Conjunción",es:"y"},
+  {h:"做",p:"zuò",cat:"Verbo",es:"hacer"},
+  {h:"工作",p:"gōngzuò",cat:"Verbo",es:"trabajar / trabajo"},
+  {h:"律师",p:"lǜshī",cat:"Sustantivo",es:"abogado/a"},
+  {h:"都",p:"dōu",cat:"Adverbio",es:"todos / ambos"},
+  {h:"大学生",p:"dàxuéshēng",cat:"Sustantivo",es:"estudiante universitario"},
+  {h:"医生",p:"yīshēng",cat:"Sustantivo",es:"médico/a"},
+  {h:"老师",p:"lǎoshī",cat:"Sustantivo",es:"profesor/a"},
+  {h:"是",p:"shì",cat:"Verbo",es:"ser"},
+  {h:"吗",p:"ma",cat:"Partícula",es:"(pregunta sí/no)"},
+  {h:"不",p:"bù",cat:"Adverbio",es:"no (negación)"},
+  {h:"学生",p:"xuésheng",cat:"Sustantivo",es:"estudiante"},
+  {h:"也",p:"yě",cat:"Adverbio",es:"también"},
+  {h:"人",p:"rén",cat:"Sustantivo",es:"persona"}
+];
+
+const T3=[
+  {h:"号",p:"hào",cat:"Clasificador",es:"día del mes / número"},
+  {h:"月",p:"yuè",cat:"Sustantivo",es:"mes"},
+  {h:"星期",p:"xīngqī",cat:"Sustantivo",es:"semana"},
+  {h:"星期四",p:"xīngqīsì",cat:"Sustantivo",es:"jueves"},
+  {h:"天",p:"tiān",cat:"Sustantivo",es:"día"},
+  {h:"生日",p:"shēngrì",cat:"Sustantivo",es:"cumpleaños"},
+  {h:"今年",p:"jīnnián",cat:"Tiempo",es:"este año"},
+  {h:"年",p:"nián",cat:"Sustantivo",es:"año"},
+  {h:"大",p:"dà",cat:"Adjetivo",es:"grande / mayor"},
+  {h:"岁",p:"suì",cat:"Clasificador",es:"años de edad"},
+  {h:"吃",p:"chī",cat:"Verbo",es:"comer"},
+  {h:"饭",p:"fàn",cat:"Sustantivo",es:"comida / arroz"},
+  {h:"怎么样",p:"zěnmeyàng",cat:"Interrogativo",es:"¿qué tal? / ¿cómo?"},
+  {h:"太…了",p:"tài…le",cat:"Estructura",es:"demasiado…"},
+  {h:"谢谢",p:"xièxie",cat:"Verbo",es:"gracias"},
+  {h:"喜欢",p:"xǐhuān",cat:"Verbo",es:"gustar"},
+  {h:"菜",p:"cài",cat:"Sustantivo",es:"plato / comida"},
+  {h:"还是",p:"háishi",cat:"Conjunción",es:"o (alternativa)"},
+  {h:"可是",p:"kěshì",cat:"Conjunción",es:"pero"},
+  {h:"我们",p:"wǒmen",cat:"Pronombre",es:"nosotros"},
+  {h:"点",p:"diǎn",cat:"Clasificador",es:"hora en punto"},
+  {h:"半",p:"bàn",cat:"Número",es:"media hora"},
+  {h:"晚上",p:"wǎnshang",cat:"Tiempo",es:"noche"},
+  {h:"见",p:"jiàn",cat:"Verbo",es:"ver (a alguien)"},
+  {h:"再见",p:"zàijiàn",cat:"Verbo",es:"adiós"},
+  {h:"英国",p:"Yīngguó",cat:"Nombre propio",es:"Reino Unido"},
+  {h:"现在",p:"xiànzài",cat:"Tiempo",es:"ahora"},
+  {h:"刻",p:"kè",cat:"Clasificador",es:"cuarto de hora"},
+  {h:"今天",p:"jīntiān",cat:"Tiempo",es:"hoy"},
+  {h:"很",p:"hěn",cat:"Adverbio",es:"muy"},
+  {h:"忙",p:"máng",cat:"Adjetivo",es:"ocupado/a"},
+  {h:"明天",p:"míngtiān",cat:"Tiempo",es:"mañana"},
+  {h:"晚饭",p:"wǎnfàn",cat:"Sustantivo",es:"cena"},
+  {h:"为什么",p:"wèishénme",cat:"Interrogativo",es:"¿por qué?"},
+  {h:"因为",p:"yīnwèi",cat:"Conjunción",es:"porque"},
+  {h:"还",p:"hái",cat:"Adverbio",es:"también / además"},
+  {h:"同学",p:"tóngxué",cat:"Sustantivo",es:"compañero de clase"},
+  {h:"认识",p:"rènshi",cat:"Verbo",es:"conocer"},
+  {h:"朋友",p:"péngyou",cat:"Sustantivo",es:"amigo/a"}
+];
+
+const T4=[
+  {h:"周末",p:"zhōumò",cat:"Tiempo",es:"fin de semana"},
+  {h:"打球",p:"dǎ qiú",cat:"Verbo-objeto",es:"jugar a la pelota"},
+  {h:"打",p:"dǎ",cat:"Verbo",es:"golpear / dar"},
+  {h:"球",p:"qiú",cat:"Sustantivo",es:"pelota / balón"},
+  {h:"看",p:"kàn",cat:"Verbo",es:"ver / mirar / leer"},
+  {h:"电视",p:"diànshì",cat:"Sustantivo",es:"televisión"},
+  {h:"唱歌",p:"chàng gē",cat:"Verbo-objeto",es:"cantar"},
+  {h:"跳舞",p:"tiào wǔ",cat:"Verbo-objeto",es:"bailar"},
+  {h:"听",p:"tīng",cat:"Verbo",es:"escuchar"},
+  {h:"音乐",p:"yīnyuè",cat:"Sustantivo",es:"música"},
+  {h:"书",p:"shū",cat:"Sustantivo",es:"libro"},
+  {h:"对",p:"duì",cat:"Adjetivo",es:"correcto / bien"},
+  {h:"有的",p:"yǒude",cat:"Pronombre",es:"algunos/as"},
+  {h:"时候",p:"shíhou",cat:"Sustantivo",es:"momento / tiempo"},
+  {h:"电影",p:"diànyǐng",cat:"Sustantivo",es:"película"},
+  {h:"常常",p:"chángcháng",cat:"Adverbio",es:"a menudo"},
+  {h:"那",p:"nà",cat:"Conjunción",es:"entonces / en ese caso"},
+  {h:"去",p:"qù",cat:"Verbo",es:"ir"},
+  {h:"外国",p:"wàiguó",cat:"Sustantivo",es:"país extranjero"},
+  {h:"请客",p:"qǐng kè",cat:"Verbo-objeto",es:"invitar (pagar la cuenta)"},
+  {h:"昨天",p:"zuótiān",cat:"Tiempo",es:"ayer"},
+  {h:"所以",p:"suǒyǐ",cat:"Conjunción",es:"por eso / así que"}
+];
+
+const ALLVOCAB=[...T1,...T2,...T3,...T4];
+
+const DATASETS={t1:T1,t2:T2,t3:T3,t4:T4,all:ALLVOCAB};
+
+const PHRASES=[
+  {h:"你周末做什么？",p:"Nǐ zhōumò zuò shénme?",es:"¿Qué haces el fin de semana?"},
+  {h:"你喜欢做什么？",p:"Nǐ xǐhuān zuò shénme?",es:"¿Qué te gusta hacer?"},
+  {h:"你喜欢看电影吗？",p:"Nǐ xǐhuān kàn diànyǐng ma?",es:"¿Te gusta ver películas?"},
+  {h:"你也喜欢看书吗？",p:"Nǐ yě xǐhuān kàn shū ma?",es:"¿A ti también te gusta leer?"},
+  {h:"我喜欢跳舞。",p:"Wǒ xǐhuān tiào wǔ.",es:"Me gusta bailar."},
+  {h:"我喜欢听音乐。",p:"Wǒ xǐhuān tīng yīnyuè.",es:"Me gusta escuchar música."},
+  {h:"我喜欢唱歌。",p:"Wǒ xǐhuān chàng gē.",es:"Me gusta cantar."},
+  {h:"我不喜欢打球。",p:"Wǒ bù xǐhuān dǎ qiú.",es:"No me gusta jugar a la pelota."},
+  {h:"有时候看看书。",p:"Yǒu shíhou kàn kàn shū.",es:"A veces leo un poco."},
+  {h:"我常常看电影。",p:"Wǒ chángcháng kàn diànyǐng.",es:"Veo películas a menudo."},
+  {h:"今晚去看吗？",p:"Jīn wǎn qù kàn ma?",es:"¿Esta noche vamos a ver?"},
+  {h:"我请客。",p:"Wǒ qǐng kè.",es:"Yo invito (yo pago)."},
+  {h:"为什么你请客？",p:"Wèishénme nǐ qǐng kè?",es:"¿Por qué invitas tú?"},
+  {h:"好吗？",p:"Hǎo ma?",es:"¿De acuerdo?"},
+  {h:"好，我去！",p:"Hǎo, wǒ qù!",es:"¡Bien, voy!"},
+  {h:"你呢？",p:"Nǐ ne?",es:"¿Y tú?"},
+  {h:"对，我也喜欢。",p:"Duì, wǒ yě xǐhuān.",es:"Sí, a mí también me gusta."},
+  {h:"我请你看电影。",p:"Wǒ qǐng nǐ kàn diànyǐng.",es:"Te invito al cine."},
+  {h:"怎么样？",p:"Zěnmeyàng?",es:"¿Qué te parece?"},
+  {h:"那我们去吧！",p:"Nà wǒmen qù ba!",es:"¡Pues vamos!"}
+];
+
+/* ===================== VOICE ===================== */
+let zhVoice=null,esVoice=null;
+function initVoices(){
+  const vs=speechSynthesis.getVoices();
+  zhVoice=vs.find(v=>v.lang.startsWith('zh-CN'))||vs.find(v=>v.lang.startsWith('zh'))||null;
+  esVoice=vs.find(v=>v.lang.startsWith('es-'))||null;
+  const w=document.getElementById('voice-warn');
+  if(w) w.textContent=zhVoice?'✓ '+zhVoice.name.split(' ')[0]:'⚠️ Sin voz china';
+  renderTopbarUser();
+}
+speechSynthesis.onvoiceschanged=initVoices;
+setTimeout(initVoices,500);
+function speakText(text,voice,lang,rate){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang=lang;
+  u.rate=rate||0.85;
+  speechSynthesis.speak(u);
+  return u;
+}
+function speakPhraseTwice(text,rate,onDone){
+  speechSynthesis.cancel();
+  const u1=new SpeechSynthesisUtterance(text);
+  if(zhVoice){u1.voice=zhVoice;u1.lang=zhVoice.lang;}else u1.lang='zh-CN';
+  u1.rate=rate||0.75;
+  u1.onend=()=>setTimeout(()=>{
+    const u2=new SpeechSynthesisUtterance(text);
+    if(zhVoice){u2.voice=zhVoice;u2.lang=zhVoice.lang;}else u2.lang='zh-CN';
+    u2.rate=rate||0.75;
+    u2.onend=()=>{if(onDone)onDone();};
+    speechSynthesis.speak(u2);
+  },700);
+  speechSynthesis.speak(u1);
+}
+
+/* ===================== INTRO ===================== */
+
+/* ===================== INTRO ===================== */
+function startApp(){
+  document.getElementById('screen-intro').style.display='none';
+  document.getElementById('screen-app').className='on';
+  buildFilters();buildPronCats();renderGrid();
+  initAuth();
+}
+
+/* ===================== NAV ===================== */
+function showSection(s){
+  ['fichas','frases','gram','pron','reviews'].forEach(x=>{
+    document.getElementById('sec-'+x).className='section'+(s===x?' on':'');
+    document.getElementById('nav-'+x).className='nav-btn'+(s===x?' on':'');
+  });
+  if(s==='pron') renderGrid();
+  if(s==='frases') initPhrases();
+  if(s==='reviews') renderReviews();
+  if(s==='gram') showGramPicker();
+}
+/* ===================== FICHAS ===================== */
+let currentSource=T1,currentDs='t1';
+let deck=[],idx=0,flipped=false,mode='hanzi',ok=0,no=0,wrong=[],autoplay=true;
+let activeCats=new Set(),allCats=[];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function setDataset(ds){
+  currentDs=ds;
+  Object.keys(DATASETS).forEach(k=>document.getElementById('ds-'+k).className='ds-btn'+(k===ds?' on':''));
+  currentSource=DATASETS[ds];
+  buildFilters();
+}
+
+function buildFilters(){
+  allCats=[...new Set(currentSource.map(x=>x.cat))].sort();
+  activeCats=new Set(allCats);
+  const c=document.getElementById('filters');c.innerHTML='';
+  const all=document.createElement('button');
+  all.className='fb on';all.id='f-ALL';all.textContent='Todas';
+  all.onclick=()=>toggleAll();c.appendChild(all);
+  allCats.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='fb on';b.id='f-'+cat;b.textContent=cat;
+    b.onclick=()=>toggleCat(cat);c.appendChild(b);
+  });
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+function toggleAll(){
+  const allOn=activeCats.size===allCats.length;
+  activeCats=allOn?new Set():new Set(allCats);
+  allCats.forEach(c=>{const b=document.getElementById('f-'+c);if(b)b.className='fb'+(activeCats.has(c)?' on':'');});
+  document.getElementById('f-ALL').className='fb'+(activeCats.size===allCats.length?' on':'');
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+function toggleCat(cat){
+  activeCats.has(cat)?activeCats.delete(cat):activeCats.add(cat);
+  document.getElementById('f-'+cat).className='fb'+(activeCats.has(cat)?' on':'');
+  document.getElementById('f-ALL').className='fb'+(activeCats.size===allCats.length?' on':'');
+  buildDeck(currentSource.filter(x=>activeCats.has(x.cat)));
+}
+function buildDeck(src){
+  if(!src||!src.length)return;
+  deck=shuffle([...src]);idx=0;ok=0;no=0;wrong=[];
+  updateStats();showCard();
+  document.getElementById('done-box').style.display='none';
+  document.getElementById('actions').style.display='flex';
+}
+function setMode(m){
+  mode=m;
+  ['hanzi','esp','oral'].forEach(x=>document.getElementById('m-'+x).className='mb'+(m===x?' on':''));
+  showCard();
+}
+function showCard(){
+  if(idx>=deck.length){showDone();return;}
+  const c=deck[idx];flipped=false;
+  document.getElementById('ci').className='card-inner';
+  document.getElementById('f-cat').textContent=c.cat||'';
+  if(mode==='hanzi'){
+    document.getElementById('f-main').textContent=c.h;
+    document.getElementById('f-main').style.fontSize='56px';
+    document.getElementById('f-sub').textContent=c.p;
+    document.getElementById('f-hint').textContent='Toca para ver el significado';
+    document.getElementById('b-main').textContent=c.es;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.h;
+  } else if(mode==='esp'){
+    document.getElementById('f-main').textContent=c.es;
+    document.getElementById('f-main').style.fontSize='18px';
+    document.getElementById('f-sub').textContent='';
+    document.getElementById('f-hint').textContent='Toca para ver el carácter';
+    document.getElementById('b-main').textContent=c.h;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.es;
+  } else {
+    document.getElementById('f-main').textContent='🔊';
+    document.getElementById('f-main').style.fontSize='52px';
+    document.getElementById('f-sub').textContent='¿Qué palabra es?';
+    document.getElementById('f-hint').textContent='Escucha y toca para revelar';
+    document.getElementById('b-main').textContent=c.es;
+    document.getElementById('b-pinyin').textContent=c.p;
+    document.getElementById('b-hanzi').textContent=c.h;
+  }
+  const pct=Math.round(idx/deck.length*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent='Ficha '+(idx+1)+' de '+deck.length;
+  document.getElementById('s-left').textContent=deck.length-idx;
+  if(autoplay) setTimeout(()=>speakText(c.h,zhVoice,'zh-CN'),350);
+}
+function flip(){
+  flipped=!flipped;
+  document.getElementById('ci').className='card-inner'+(flipped?' flipped':'');
+  if(flipped&&autoplay&&mode==='oral') setTimeout(()=>speakText(deck[idx].h,zhVoice,'zh-CN'),400);
+}
+function speak(lang){
+  if(idx>=deck.length)return;
+  const c=deck[idx];
+  const u=speakText(lang==='zh'?c.h:c.es,lang==='zh'?zhVoice:esVoice,lang==='zh'?'zh-CN':'es-ES');
+  const btn=document.getElementById(lang==='zh'?'btn-zh':'btn-es');
+  if(btn){btn.classList.add('playing');u.onend=()=>btn.classList.remove('playing');}
+}
+function answer(knew){
+  if(!flipped){flip();return;}
+  if(knew)ok++;else{no++;wrong.push(deck[idx]);}
+  idx++;updateStats();showCard();
+}
+function skipCard(){
+  if(!flipped){flip();return;}
+  wrong.push(deck[idx]);no++;idx++;updateStats();showCard();
+}
+function updateStats(){
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-no').textContent=no;
+  document.getElementById('s-left').textContent=Math.max(0,deck.length-idx);
+}
+function showDone(){
+  speechSynthesis.cancel();
+  document.getElementById('done-box').style.display='block';
+  document.getElementById('actions').style.display='none';
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('done-msg').textContent='Sabías '+ok+' de '+deck.length+'. '+(wrong.length?'Tienes '+wrong.length+' para repasar.':'¡Perfecto! 🌟');
+}
+function restart(t){
+  document.getElementById('done-box').style.display='none';
+  document.getElementById('actions').style.display='flex';
+  buildDeck(t==='wrong'&&wrong.length?wrong:currentSource.filter(x=>activeCats.has(x.cat)));
+}
+
+/* ===================== FRASES ===================== */
+let phDeck=[],phIdx=0,phFlipped=false,phOk=0,phNo=0,phWrong=[];
+let phraseMode='listen',shadowActive=false,phInitialized=false;
+let selectedPhrases=new Set(PHRASES.map((_,i)=>i));
+let selectorOpen=false;
+
+function initPhrases(){
+  if(!phInitialized){phInitialized=true;buildPhraseSelector();buildPhraseDeck(getActivePhrases());}
+}
+function getActivePhrases(){return PHRASES.filter((_,i)=>selectedPhrases.has(i));}
+function buildPhraseSelector(){
+  const list=document.getElementById('phrase-list');list.innerHTML='';
+  PHRASES.forEach((p,i)=>{
+    const item=document.createElement('div');
+    item.className='phrase-item'+(selectedPhrases.has(i)?' selected':'');
+    item.id='ps-item-'+i;
+    const hEsc=p.h.replace(/'/g,"\\'");
+    item.innerHTML=`<div class="phrase-item-check">${selectedPhrases.has(i)?'✓':''}</div><div class="phrase-item-text"><div class="phrase-item-h">${p.h}</div><div class="phrase-item-es">${p.es}</div></div><button class="phrase-item-play" onclick="event.stopPropagation();speakText('${hEsc}',zhVoice,'zh-CN',0.75)">🔊</button>`;
+    item.onclick=()=>togglePhraseSelection(i);
+    list.appendChild(item);
+  });
+}
+function togglePhraseSelection(i){
+  selectedPhrases.has(i)?selectedPhrases.delete(i):selectedPhrases.add(i);
+  const item=document.getElementById('ps-item-'+i);
+  const check=item.querySelector('.phrase-item-check');
+  if(selectedPhrases.has(i)){item.className='phrase-item selected';check.textContent='✓';}
+  else{item.className='phrase-item';check.textContent='';}
+}
+function psSelectAll(){PHRASES.forEach((_,i)=>selectedPhrases.add(i));buildPhraseSelector();}
+function psSelectNone(){selectedPhrases.clear();buildPhraseSelector();}
+function applySelection(){
+  const active=getActivePhrases();
+  if(!active.length){alert('Selecciona al menos una frase.');return;}
+  toggleSelector(false);buildPhraseDeck(active);
+}
+function toggleSelector(forceClose){
+  if(forceClose===false)selectorOpen=false;else selectorOpen=!selectorOpen;
+  document.getElementById('phrase-selector').className='phrase-selector'+(selectorOpen?' on':'');
+  document.getElementById('sel-toggle-btn').textContent=selectorOpen?'✕ Cerrar':'☰ Seleccionar';
+}
+function buildPhraseDeck(src){
+  phDeck=shuffle([...src]);phIdx=0;phOk=0;phNo=0;phWrong=[];phFlipped=false;
+  updatePhraseStats();
+  document.getElementById('ph-done-box').style.display='none';
+  document.getElementById('ph-actions').style.display='flex';
+  showPhraseCard();
+}
+function setPhraseMode(m){
+  phraseMode=m;
+  ['listen','shadow','esp'].forEach(x=>document.getElementById('pm-'+x).className='mb'+(m===x?' on':''));
+  shadowActive=m==='shadow';
+  document.getElementById('shadow-bar').className='shadow-bar'+(shadowActive?' on':'');
+  showPhraseCard();
+}
+function stopShadow(){setPhraseMode('listen');}
+function showPhraseCard(){
+  if(phIdx>=phDeck.length){showPhraseDone();return;}
+  const c=phDeck[phIdx];phFlipped=false;
+  document.getElementById('ph-ci').className='card-inner';
+  if(phraseMode==='esp'){
+    document.getElementById('ph-icon').style.display='none';
+    document.getElementById('ph-hanzi').textContent=c.es;
+    document.getElementById('ph-hanzi').style.fontSize='15px';
+    document.getElementById('ph-hint').textContent='Toca para ver en chino';
+  } else {
+    document.getElementById('ph-icon').style.display='block';
+    document.getElementById('ph-icon').textContent=shadowActive?'🎙️':'🔊';
+    document.getElementById('ph-hanzi').textContent=c.h;
+    document.getElementById('ph-hanzi').style.fontSize='34px';
+    document.getElementById('ph-hint').textContent=shadowActive?'Escucha → repite → toca':'Toca para ver el significado';
+  }
+  document.getElementById('ph-esp').textContent=c.es;
+  document.getElementById('ph-pinyin').textContent=c.p;
+  document.getElementById('ph-hanzi-back').textContent=c.h;
+  const pct=Math.round(phIdx/phDeck.length*100);
+  document.getElementById('ph-prog-fill').style.width=pct+'%';
+  document.getElementById('ph-prog-label').textContent='Frase '+(phIdx+1)+' de '+phDeck.length;
+  document.getElementById('ph-s-left').textContent=phDeck.length-phIdx;
+  if(phraseMode!=='esp') setTimeout(()=>speakPhraseTwice(c.h,0.75),400);
+}
+function flipPhrase(){
+  phFlipped=!phFlipped;
+  document.getElementById('ph-ci').className='card-inner'+(phFlipped?' flipped':'');
+}
+function repeatPhrase(){
+  if(phIdx>=phDeck.length)return;
+  const btn=document.getElementById('btn-phrase-repeat');
+  btn.classList.add('playing');
+  speakPhraseTwice(phDeck[phIdx].h,0.75,()=>btn.classList.remove('playing'));
+}
+function repeatPhraseSlow(){
+  if(phIdx>=phDeck.length)return;
+  const btn=document.getElementById('btn-phrase-slow');
+  btn.classList.add('playing');
+  speakPhraseTwice(phDeck[phIdx].h,0.5,()=>btn.classList.remove('playing'));
+}
+function phraseAnswer(knew){
+  if(!phFlipped){flipPhrase();return;}
+  if(knew)phOk++;else{phNo++;phWrong.push(phDeck[phIdx]);}
+  phIdx++;updatePhraseStats();showPhraseCard();
+}
+function phraseSkip(){
+  if(!phFlipped){flipPhrase();return;}
+  phWrong.push(phDeck[phIdx]);phNo++;phIdx++;updatePhraseStats();showPhraseCard();
+}
+function updatePhraseStats(){
+  document.getElementById('ph-s-ok').textContent=phOk;
+  document.getElementById('ph-s-no').textContent=phNo;
+  document.getElementById('ph-s-left').textContent=Math.max(0,phDeck.length-phIdx);
+}
+function showPhraseDone(){
+  speechSynthesis.cancel();
+  document.getElementById('ph-done-box').style.display='block';
+  document.getElementById('ph-actions').style.display='none';
+  document.getElementById('ph-prog-fill').style.width='100%';
+  document.getElementById('ph-done-msg').textContent='Sabías '+phOk+' de '+phDeck.length+'. '+(phWrong.length?'Tienes '+phWrong.length+' para repasar.':'¡Perfecto! 🌟');
+}
+function restartPhrases(t){
+  document.getElementById('ph-done-box').style.display='none';
+  document.getElementById('ph-actions').style.display='flex';
+  buildPhraseDeck(t==='wrong'&&phWrong.length?phWrong:getActivePhrases());
+}
+
+/* ===================== PRONUNCIACIÓN ===================== */
+let pronSource=ALLVOCAB,pronActiveCats=new Set(),selectedPronCard=null;
+
+function setPronDs(ds){
+  ['all','t1','t2','t3','t4'].forEach(k=>document.getElementById('pds-'+k).className='ds-btn'+(k===ds?' on':''));
+  pronSource=DATASETS[ds]||ALLVOCAB;
+  buildPronCats();
+}
+function buildPronCats(){
+  const sorted=[...pronSource].sort((a,b)=>a.h.localeCompare(b.h,'zh'));
+  pronSource=sorted;
+  const allC=[...new Set(pronSource.map(x=>x.cat))].sort();
+  pronActiveCats=new Set(allC);
+  const row=document.getElementById('pron-cats');row.innerHTML='';
+  const allBtn=document.createElement('button');
+  allBtn.className='pron-cat-btn on';allBtn.id='pc-ALL';allBtn.textContent='Todas';
+  allBtn.onclick=()=>{
+    const on=pronActiveCats.size===allC.length;
+    pronActiveCats=on?new Set():new Set(allC);
+    allC.forEach(c=>{const b=document.getElementById('pc-'+c);if(b)b.className='pron-cat-btn'+(pronActiveCats.has(c)?' on':'');});
+    allBtn.className='pron-cat-btn'+(pronActiveCats.size===allC.length?' on':'');
+    renderGrid();
+  };
+  row.appendChild(allBtn);
+  allC.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='pron-cat-btn on';b.id='pc-'+cat;b.textContent=cat;
+    b.onclick=()=>{
+      pronActiveCats.has(cat)?pronActiveCats.delete(cat):pronActiveCats.add(cat);
+      b.className='pron-cat-btn'+(pronActiveCats.has(cat)?' on':'');
+      document.getElementById('pc-ALL').className='pron-cat-btn'+(pronActiveCats.size===allC.length?' on':'');
+      renderGrid();
+    };
+    row.appendChild(b);
+  });
+  renderGrid();
+}
+function renderGrid(){
+  const q=(document.getElementById('pron-search').value||'').toLowerCase();
+  const filtered=pronSource.filter(x=>{
+    if(!pronActiveCats.has(x.cat))return false;
+    if(q&&!x.h.includes(q)&&!x.es.toLowerCase().includes(q)&&!x.p.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const grid=document.getElementById('pron-grid');
+  const empty=document.getElementById('pron-empty');
+  grid.innerHTML='';
+  empty.style.display=filtered.length?'none':'block';
+  filtered.forEach(item=>{
+    const card=document.createElement('div');
+    card.className='pron-card';
+    card.innerHTML=`<div class="ph">${item.h}</div><div class="pp">${item.p}</div><div class="pe">${item.es}</div>`;
+    card.onclick=()=>selectPron(item,card);
+    grid.appendChild(card);
+  });
+}
+function selectPron(item,cardEl){
+  if(selectedPronCard) selectedPronCard.classList.remove('active');
+  selectedPronCard=cardEl;cardEl.classList.add('active');
+  document.getElementById('pd-hanzi').textContent=item.h;
+  document.getElementById('pd-pinyin').textContent=item.p;
+  document.getElementById('pd-cat').textContent=item.cat;
+  document.getElementById('pd-esp').textContent=item.es;
+  document.getElementById('pron-detail').className='pron-detail on';
+  speakText(item.h,zhVoice,'zh-CN',0.85);
+  document.getElementById('pron-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function pronSpeak(type){
+  const h=document.getElementById('pd-hanzi').textContent;
+  const es=document.getElementById('pd-esp').textContent;
+  if(!h||h==='—')return;
+  let u;
+  if(type==='zh') u=speakText(h,zhVoice,'zh-CN',0.85);
+  else if(type==='es') u=speakText(es,esVoice,'es-ES',0.85);
+  else u=speakText(h,zhVoice,'zh-CN',0.5);
+  const btnId=type==='es'?'pd-btn-es':type==='slow'?'pd-btn-slow':'pd-btn-zh';
+  const btn=document.getElementById(btnId);
+  if(btn){btn.classList.add('playing');if(u)u.onend=()=>btn.classList.remove('playing');}
+}
+
+/* ===================== SUPABASE CONFIG ===================== */
+const SUPABASE_URL='https://hblbmbkgfulllpposvtk.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhibGJtYmtnZnVsbGxwcG9zdnRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjgwNjcsImV4cCI6MjA5MTYwNDA2N30.TMH7UIfpK5QWz4jwUv8GihyCrk9jxF9OEcINj3xgcwE';
+
+async function sbFetch(path,opts={}){
+  const headers={'apikey':SUPABASE_ANON,'Content-Type':'application/json',...(opts.headers||{})};
+  const session=getSession();
+  if(session) headers['Authorization']='Bearer '+session.access_token;
+  const r=await fetch(SUPABASE_URL+path,{...opts,headers});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error_description||e.message||r.status);}
+  const ct=r.headers.get('content-type')||'';
+  return ct.includes('json')?r.json():null;
+}
+
+/* ===================== SESSION ===================== */
+function getSession(){try{return JSON.parse(localStorage.getItem('sb-session'));}catch(e){return null;}}
+function saveSession(s){if(s)localStorage.setItem('sb-session',JSON.stringify(s));else localStorage.removeItem('sb-session');}
+function getCurrentUser(){const s=getSession();return s?s.user:null;}
+
+function renderTopbarUser(){
+  const u=getCurrentUser();
+  const el=document.getElementById('topbar-user');
+  if(!el)return;
+  if(u){
+    const name=u.user_metadata&&u.user_metadata.display_name?u.user_metadata.display_name:u.email.split('@')[0];
+    const initials=name.charAt(0).toUpperCase();
+    el.innerHTML=`<div class="user-chip"><div class="user-avatar">${initials}</div><span class="user-name-pill">${name}</span></div><button class="btn-logout" onclick="doLogout()">Salir</button>`;
+  } else {
+    el.innerHTML=`<button class="btn-login" onclick="openAuthModal()">Entrar 👤</button>`;
+  }
+  updateReviewUI();
+}
+
+function updateReviewUI(){
+  const u=getCurrentUser();
+  const prompt=document.getElementById('review-login-prompt');
+  const form=document.getElementById('review-form');
+  if(!prompt||!form)return;
+  if(u){prompt.style.display='none';form.className='review-form visible';}
+  else{prompt.style.display='block';form.className='review-form';}
+}
+
+/* ===================== AUTH ===================== */
+function openAuthModal(){document.getElementById('auth-modal').className='modal-overlay on';}
+function closeAuthModal(e){if(e&&e.target!==document.getElementById('auth-modal'))return;document.getElementById('auth-modal').className='modal-overlay';}
+function switchAuthTab(t){
+  document.getElementById('tab-login').className='modal-tab'+(t==='login'?' on':'');
+  document.getElementById('tab-register').className='modal-tab'+(t==='register'?' on':'');
+  document.getElementById('auth-login-form').style.display=t==='login'?'flex':'none';
+  document.getElementById('auth-register-form').style.display=t==='register'?'flex':'none';
+  document.getElementById('login-msg').textContent='';
+  document.getElementById('reg-msg').textContent='';
+}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const msg=document.getElementById('login-msg');
+  if(!email||!pass){msg.textContent='Rellena email y contraseña.';return;}
+  msg.textContent='Entrando…';msg.className='modal-msg';
+  try{
+    const data=await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});
+    saveSession(data);
+    msg.textContent='¡Bienvenido/a!';msg.className='modal-msg ok';
+    setTimeout(()=>{closeAuthModal();renderTopbarUser();if(document.getElementById('sec-reviews').classList.contains('on'))renderReviews();},600);
+  }catch(e){msg.textContent='Error: '+e.message;msg.className='modal-msg';}
+}
+
+async function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const msg=document.getElementById('reg-msg');
+  if(!name){msg.textContent='Escribe tu nombre.';return;}
+  if(!email){msg.textContent='Escribe tu email.';return;}
+  if(pass.length<6){msg.textContent='La contraseña debe tener al menos 6 caracteres.';return;}
+  msg.textContent='Creando cuenta…';msg.className='modal-msg';
+  try{
+    const data=await sbFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password:pass,data:{display_name:name}})});
+    if(data.user&&data.access_token){
+      saveSession(data);
+      msg.textContent='¡Cuenta creada! Bienvenido/a, '+name+'!';msg.className='modal-msg ok';
+      setTimeout(()=>{closeAuthModal();renderTopbarUser();},700);
+    } else {
+      msg.textContent='Cuenta creada. Revisa tu email para confirmar.';msg.className='modal-msg ok';
+    }
+  }catch(e){msg.textContent='Error: '+e.message;msg.className='modal-msg';}
+}
+
+async function doLogout(){
+  const session=getSession();
+  if(session){try{await sbFetch('/auth/v1/logout',{method:'POST'});}catch(e){}}
+  saveSession(null);
+  renderTopbarUser();
+}
+
+async function initAuth(){
+  const session=getSession();
+  if(!session)return;
+  try{
+    const data=await sbFetch('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});
+    saveSession(data);
+  }catch(e){saveSession(null);}
+  renderTopbarUser();
+}
+
+/* ===================== RESEÑAS (SUPABASE) ===================== */
+let reviewStars=0;
+function setStars(n){
+  reviewStars=n;
+  document.querySelectorAll('.star-btn').forEach((s,i)=>s.className='star-btn'+(i<n?' on':''));
+}
+async function submitReview(){
+  const u=getCurrentUser();
+  if(!u){alert('Inicia sesión para dejar una reseña.');return;}
+  const text=document.getElementById('review-text').value.trim();
+  if(!reviewStars){alert('Elige una puntuación ⭐');return;}
+  if(!text){alert('Escribe algo antes de enviar 😊');return;}
+  const name=u.user_metadata&&u.user_metadata.display_name?u.user_metadata.display_name:u.email.split('@')[0];
+  try{
+    await sbFetch('/rest/v1/reviews',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({stars:reviewStars,text,author:name,user_id:u.id})});
+    document.getElementById('review-text').value='';
+    setStars(0);reviewStars=0;
+    renderReviews();
+  }catch(e){alert('Error al enviar: '+e.message);}
+}
+async function renderReviews(){
+  updateReviewUI();
+  const list=document.getElementById('reviews-list');
+  const empty=document.getElementById('reviews-empty');
+  list.innerHTML='<div style="text-align:center;color:#ccc;padding:1rem;font-size:13px;">Cargando reseñas…</div>';
+  try{
+    const reviews=await sbFetch('/rest/v1/reviews?select=*&order=created_at.desc',{headers:{'Accept':'application/json'}});
+    list.innerHTML='';
+    if(!reviews||!reviews.length){empty.style.display='block';return;}
+    empty.style.display='none';
+    reviews.forEach(r=>{
+      const el=document.createElement('div');
+      el.className='review-item';
+      const date=new Date(r.created_at).toLocaleDateString('es-ES');
+      el.innerHTML=`<div class="review-item-top"><div class="review-item-stars">${'⭐'.repeat(r.stars)}</div><div class="review-item-meta"><div class="review-item-author">${r.author||'Anónimo'}</div><div class="review-item-date">${date}</div></div></div><div class="review-item-text">${r.text}</div>`;
+      list.appendChild(el);
+    });
+  }catch(e){list.innerHTML='<div style="text-align:center;color:#ccc;padding:1rem;font-size:13px;">Sin conexión a Supabase.<br>Las reseñas necesitan internet.</div>';}
+}
+
+/* ===================== GRAMÁTICA TEMAS ===================== */
+function showGramTopic(n){
+  document.getElementById('gram-picker').style.display='none';
+  [1,2,3,4].forEach(i=>document.getElementById('gram-t'+i).className='gram-content'+(i===n?' on':''));
+}
+function showGramPicker(){
+  document.getElementById('gram-picker').style.display='block';
+  [1,2,3,4].forEach(i=>document.getElementById('gram-t'+i).className='gram-content');
+}
+/* ===================== PWA ICON ===================== */
+(function(){
+  try{
+    const c=document.createElement('canvas');c.width=180;c.height=180;
+    const ctx=c.getContext('2d');
+    const g=ctx.createLinearGradient(0,0,180,180);
+    g.addColorStop(0,'#e74c3c');g.addColorStop(1,'#8b1010');
+    ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(0,0,180,180,36);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 96px serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('汉',90,95);
+    document.getElementById('apple-touch-icon').href=c.toDataURL('image/png');
+  }catch(e){}
+})();
+
+/* ===================== INSTALL BANNER ===================== */
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  if(isIOS&&!isStandalone&&!sessionStorage.getItem('ib'))
+    document.getElementById('install-banner').className='install-banner on';
+})();
+function dismissBanner(){
+  document.getElementById('install-banner').className='install-banner';
+  sessionStorage.setItem('ib','1');
+}
+</script>
+</body>
+</html>
