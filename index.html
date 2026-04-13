@@ -1188,9 +1188,9 @@ function renderGrid(){
   const q=(document.getElementById('pron-search').value||'').toLowerCase();
   const filtered=pronSource.filter(x=>{
     if(!pronActiveCats.has(x.cat))return false;
-    if(q&&!x.h.includes(q)&&!x.es.toLowerCase().includes(q)&&!x.p.toLowerCase().includes(q))return false;
-    return true;
-  });
+    function normalize(text){
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
   const grid=document.getElementById('pron-grid');
   const empty=document.getElementById('pron-empty');
   grid.innerHTML='';
