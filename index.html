@@ -848,7 +848,8 @@ function initVoices(){
   renderTopbarUser();
 }
 speechSynthesis.onvoiceschanged=initVoices;
-setTimeout(initVoices,500);
+window.speechSynthesis.onvoiceschanged = initVoices;
+initVoices();
 function speakText(text,voice,lang,rate){
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
