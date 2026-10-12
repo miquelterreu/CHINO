@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>汉字 – Chino Mandarín</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="汉字">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#c0392b">
+<link id="apple-touch-icon" rel="apple-touch-icon" href="">
+<style>
+:root{
+  --red:#c0392b;--red2:#e74c3c;--red-light:#fdf0ee;--red-border:#f5c0bb;
+  --black:#1a1a1a;--dark:#2c2c2c;
+  --gold:#d4a843;--gold-light:#fdf6e3;
+  --bg:#f7f3f0;--card:#fff;
+  --text:#1a1a1a;--muted:#888;--border:#e8e4e0;
+  --green:#27ae60;--green-light:#f0faf4;--green-border:#a5e0b8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(1rem + env(safe-area-inset-bottom));}
+
+/* ===== INTRO SCREEN ===== */
+#screen-intro{
+  position:fixed;inset:0;z-index:100;
+  background:var(--black);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;
+}
+.intro-deco{
+  width:120px;height:120px;border-radius:28px;
+  background:linear-gradient(135deg,var(--red),#8b1010);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;margin-bottom:1.5rem;
+  box-shadow:0 8px 32px rgba(192,57,43,.5);
+}
+.intro-title{font-size:32px;font-weight:700;color:#fff;margin-bottom:.4rem;letter-spacing:-1px;}
+.intro-sub{font-size:15px;color:rgba(255,255,255,.55);margin-bottom:.25rem;}
+.intro-badge{display:inline-block;background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.35);color:var(--gold);font-size:12px;padding:3px 12px;border-radius:99px;margin-bottom:2.5rem;}
+.intro-features{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:320px;margin-bottom:2.5rem;}
+.intro-feat{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;}
+.intro-feat-icon{font-size:20px;width:28px;text-align:center;}
+.intro-feat-text{font-size:13px;color:rgba(255,255,255,.75);}
+.btn-start{
+  width:100%;max-width:320px;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--red2),var(--red));
+  color:#fff;font-size:17px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 20px rgba(192,57,43,.45);letter-spacing:.3px;
+  transition:transform .1s,box-shadow .1s;
+}
+.btn-start:active{transform:scale(.97);box-shadow:0 2px 10px rgba(192,57,43,.3);}
+
+/* ===== APP SHELL ===== */
+#screen-app{display:none;}
+#screen-app.on{display:block;}
+.app{max-width:520px;margin:0 auto;padding:1rem;}
+
+/* ===== TOP BAR ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-top:calc(env(safe-area-inset-top) + .25rem);}
+.topbar-logo{display:flex;align-items:center;gap:8px;}
+.topbar-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--red2),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;}
+.topbar-name{font-size:16px;font-weight:700;color:var(--black);}
+.topbar-sub{font-size:11px;color:var(--muted);}
+.voice-pill{font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:3px 10px;border-radius:99px;}
+
+/* ===== NAV ===== */
+.nav{display:flex;background:var(--card);border-radius:12px;border:1px solid var(--border);padding:4px;gap:3px;margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex:0 0 auto;padding:7px 10px;border-radius:99px;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.nav-btn.on{background:var(--red);color:#fff;}
+
+/* ===== SECTIONS ===== */
+.section{display:none;}
+.section.on{display:block;}
+
+/* ===== DATASET BUTTONS ===== */
+.dataset-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.ds-btn{padding:5px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#555;font-size:11px;cursor:pointer;font-weight:500;}
+.ds-btn.on{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* ===== FILTERS ===== */
+.filter-wrap{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem 1rem;margin-bottom:.75rem;}
+.filter-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;}
+.fb{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.fb.on{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* ===== MODE BUTTONS ===== */
+.mode-row{display:flex;gap:6px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.mb{padding:5px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#555;font-size:12px;cursor:pointer;}
+.mb.on{background:var(--black);color:#fff;border-color:var(--black);}
+
+/* ===== PROGRESS ===== */
+.prog-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.prog-wrap{height:4px;background:#e8e4e0;border-radius:99px;margin-bottom:1.25rem;}
+.prog-fill{height:4px;background:var(--red);border-radius:99px;transition:width .4s;}
+
+/* ===== CARD ===== */
+.autoplay-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.5rem;}
+.autoplay-row label{font-size:12px;color:#777;cursor:pointer;}
+.card-area{perspective:1000px;display:flex;justify-content:center;margin-bottom:.75rem;}
+.card-outer{width:100%;height:240px;cursor:pointer;user-select:none;}
+.card-outer.phrase-mode{height:240px;}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s;}
+.card-inner.flipped{transform:rotateY(180deg);}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;border:1px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.back{transform:rotateY(180deg);}
+.hanzi{font-size:58px;line-height:1;}
+.pinyin{font-size:16px;color:var(--muted);}
+.cat-badge{font-size:11px;color:#aaa;background:var(--bg);padding:2px 10px;border-radius:99px;}
+.hint{font-size:11px;color:#ccc;margin-top:2px;}
+.esp{font-size:22px;font-weight:600;color:var(--black);text-align:center;line-height:1.3;}
+
+.face.front::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:16px 16px 0 0;opacity:.6;}
+
+/* ===== AUDIO BUTTONS ===== */
+.audio-row{display:flex;gap:8px;justify-content:center;margin-bottom:.75rem;flex-wrap:wrap;}
+.audio-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:#333;font-size:13px;cursor:pointer;}
+.audio-btn:hover{background:var(--bg);}
+.audio-btn.playing{border-color:var(--green);color:var(--green);background:var(--green-light);}
+
+/* ===== ACTIONS ===== */
+.actions{display:flex;gap:10px;justify-content:center;margin-bottom:1rem;}
+.btn-no{padding:11px 28px;border-radius:10px;border:1px solid var(--red-border);background:var(--card);color:var(--red);font-size:15px;cursor:pointer;font-weight:500;}
+.btn-no:hover{background:var(--red-light);}
+.btn-si{padding:11px 28px;border-radius:10px;border:1px solid var(--green-border);background:var(--card);color:var(--green);font-size:15px;cursor:pointer;font-weight:500;}
+.btn-si:hover{background:var(--green-light);}
+.btn-skip{padding:11px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:15px;cursor:pointer;}
+.btn-skip:hover{background:var(--bg);}
+
+/* ===== STATS ===== */
+.stats{display:flex;gap:10px;justify-content:center;margin-top:.5rem;}
+.stat{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 20px;}
+.stat-n{font-size:22px;font-weight:600;}
+.stat-l{font-size:11px;color:#aaa;}
+
+/* ===== DONE BOX ===== */
+.done-box{text-align:center;background:var(--card);border-radius:16px;border:1px solid var(--border);padding:2rem 1rem;margin-top:.5rem;}
+.done-box h3{font-size:20px;font-weight:600;margin-bottom:.5rem;}
+.done-box p{font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.5;}
+.restart-btn{padding:10px 22px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:#333;font-size:14px;cursor:pointer;margin:4px;font-weight:500;}
+
+/* ===== PHRASE CARD ===== */
+.phrase-hanzi{font-size:34px;line-height:1.4;text-align:center;font-weight:500;color:var(--black);}
+.phrase-back-esp{font-size:17px;font-weight:600;color:var(--black);text-align:center;line-height:1.4;margin-bottom:4px;}
+.phrase-back-pinyin{font-size:13px;color:var(--red);text-align:center;line-height:1.5;}
+.phrase-back-hanzi{font-size:15px;color:#aaa;text-align:center;margin-top:4px;}
+.shadow-bar{background:linear-gradient(135deg,var(--black),var(--dark));border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:none;}
+.shadow-bar.on{display:flex;align-items:center;gap:10px;}
+.shadow-icon{font-size:22px;}
+.shadow-text{flex:1;}
+.shadow-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px;}
+.shadow-sub{font-size:11px;color:rgba(255,255,255,.6);}
+.shadow-stop{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.btn-repeat{padding:8px 16px;border-radius:10px;border:1px solid var(--red-border);background:var(--red-light);color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.btn-repeat:hover{background:#f9dbd8;}
+.btn-repeat.playing{border-color:var(--red);background:var(--red);color:#fff;}
+
+.phrase-selector{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem;margin-bottom:.75rem;display:none;}
+.phrase-selector.on{display:block;}
+.ps-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:6px;}
+.ps-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+.ps-actions{display:flex;gap:5px;}
+.ps-act-btn{padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.ps-act-btn.primary{background:var(--red);color:#fff;border-color:var(--red);}
+.phrase-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.phrase-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#fafafa;cursor:pointer;transition:all .15s;}
+.phrase-item.selected{border-color:var(--red);background:var(--red-light);}
+.phrase-item-check{width:18px;height:18px;border-radius:5px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+.phrase-item.selected .phrase-item-check{background:var(--red);border-color:var(--red);color:#fff;}
+.phrase-item-text{flex:1;min-width:0;}
+.phrase-item-h{font-size:16px;color:var(--black);font-weight:500;}
+.phrase-item-es{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.phrase-item-play{padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);font-size:12px;cursor:pointer;flex-shrink:0;}
+.sel-toggle-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--red-border);background:var(--red-light);color:var(--red);font-size:11px;cursor:pointer;font-weight:500;}
+
+/* ===== PRONUNCIACIÓN ===== */
+.pron-search{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:15px;margin-bottom:.75rem;outline:none;}
+.pron-search:focus{border-color:var(--red);}
+.pron-cat-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pron-cat-btn{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#666;font-size:11px;cursor:pointer;}
+.pron-cat-btn.on{background:var(--red);color:#fff;border-color:var(--red);}
+.pron-ds-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pron-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:1rem;}
+.pron-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;user-select:none;}
+.pron-card:hover{background:var(--red-light);border-color:var(--red-border);}
+.pron-card.active{background:var(--red);border-color:var(--red);}
+.pron-card .ph{font-size:30px;line-height:1;margin-bottom:3px;}
+.pron-card .pp{font-size:10px;color:#aaa;margin-bottom:2px;}
+.pron-card .pe{font-size:10px;color:var(--muted);line-height:1.2;}
+.pron-card.active .pp,.pron-card.active .pe{color:rgba(255,255,255,.75);}
+.pron-card.active .ph{color:#fff;}
+.pron-detail{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:1.5rem;text-align:center;margin-bottom:1rem;display:none;}
+.pron-detail.on{display:block;}
+.pd-hanzi{font-size:72px;line-height:1;margin-bottom:6px;cursor:pointer;}
+.pd-pinyin{font-size:20px;color:var(--muted);margin-bottom:4px;}
+.pd-cat{font-size:12px;color:#aaa;background:var(--bg);padding:2px 12px;border-radius:99px;display:inline-block;margin-bottom:10px;}
+.pd-esp{font-size:18px;font-weight:600;color:var(--black);margin-bottom:14px;}
+.pd-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.pd-btn{padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.pd-btn:hover{background:var(--bg);}
+.pd-btn.playing{border-color:var(--green);color:var(--green);background:var(--green-light);}
+.pron-empty{text-align:center;color:#ccc;font-size:14px;padding:2rem;display:none;}
+
+/* ===== GRAMÁTICA ===== */
+.gram-section{margin-bottom:1.25rem;}
+.gram-title{font-size:13px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;display:flex;align-items:center;gap:6px;}
+.gram-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:1rem;margin-bottom:.6rem;}
+.gram-card-title{font-size:14px;font-weight:600;color:var(--black);margin-bottom:.5rem;}
+.gram-pattern{background:var(--red-light);border:1px solid var(--red-border);border-radius:8px;padding:.5rem .75rem;font-size:13px;color:var(--red);font-family:monospace;margin-bottom:.6rem;}
+.gram-examples{display:flex;flex-direction:column;gap:.5rem;}
+.gram-ex{background:var(--bg);border-radius:8px;padding:.5rem .75rem;cursor:pointer;transition:background .15s;}
+.gram-ex:hover{background:#ede8e3;}
+.gram-ex-zh{font-size:15px;color:var(--black);font-weight:500;margin-bottom:2px;}
+.gram-ex-py{font-size:11px;color:var(--red);margin-bottom:2px;}
+.gram-ex-es{font-size:12px;color:var(--muted);}
+
+/* ===== AUTH MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.on{display:flex;}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:380px;padding:1.5rem;box-shadow:0 8px 40px rgba(0,0,0,.2);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.modal-title{font-size:18px;font-weight:700;color:var(--black);}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;}
+.modal-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;}
+.modal-tab{flex:1;padding:7px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;}
+.modal-tab.on{background:#fff;color:var(--black);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.modal-form{display:flex;flex-direction:column;gap:.6rem;}
+.modal-input{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:14px;outline:none;font-family:inherit;}
+.modal-input:focus{border-color:var(--red);}
+.modal-btn{padding:11px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:.25rem;}
+.modal-btn:hover{background:var(--red2);}
+.modal-msg{font-size:12px;color:var(--red);text-align:center;min-height:16px;}
+.modal-msg.ok{color:var(--green);}
+.btn-login{padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:500;color:var(--black);cursor:pointer;}
+.user-chip{display:flex;align-items:center;gap:6px;cursor:pointer;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--red2),var(--red));display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;}
+.user-name-pill{font-size:12px;font-weight:500;color:var(--black);}
+.btn-logout{padding:3px 8px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--muted);cursor:pointer;}
+
+/* ===== RESEÑAS ===== */
+.review-login-prompt{background:var(--bg);border-radius:12px;border:1px dashed var(--border);padding:1.5rem;text-align:center;margin-bottom:1rem;}
+.review-login-prompt p{font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.5;}
+.review-login-prompt button{padding:8px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.review-form{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:1rem;margin-bottom:1rem;display:none;}
+.review-form.visible{display:block;}
+.review-form-title{font-size:14px;font-weight:600;color:var(--black);margin-bottom:.75rem;}
+.stars-row{display:flex;gap:6px;margin-bottom:.75rem;}
+.star-btn{font-size:26px;cursor:pointer;opacity:.3;transition:opacity .15s,transform .1s;}
+.star-btn.on{opacity:1;}
+.star-btn:hover{transform:scale(1.15);}
+textarea.review-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:13px;resize:none;outline:none;font-family:inherit;height:80px;}
+textarea.review-input:focus{border-color:var(--red);}
+.review-submit{margin-top:.6rem;padding:9px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;width:100%;}
+.review-submit:hover{background:var(--red2);}
+.reviews-list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+.review-item{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem;}
+.review-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+.review-item-stars{font-size:14px;}
+.review-item-meta{text-align:right;}
+.review-item-author{font-size:11px;font-weight:600;color:var(--red);}
+.review-item-date{font-size:10px;color:#ccc;}
+.review-item-text{font-size:13px;color:#555;line-height:1.5;}
+.reviews-empty{text-align:center;color:#ccc;font-size:13px;padding:1.5rem;}
+
+/* ===== GRAMÁTICA TEMAS ===== */
+.gram-topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.gram-topic-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem .75rem;text-align:center;cursor:pointer;transition:all .15s;}
+.gram-topic-btn:hover{border-color:var(--red);background:var(--red-light);}
+.gram-topic-btn .gt-icon{font-size:28px;margin-bottom:6px;}
+.gram-topic-btn .gt-label{font-size:13px;font-weight:600;color:var(--black);}
+.gram-topic-btn .gt-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.gram-back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;margin-bottom:1rem;color:var(--black);}
+.gram-content{display:none;}
+.gram-content.on{display:block;}
+.gram-picker{display:block;}
+
+/* ===== INSTALL BANNER ===== */
+.install-banner{display:none;background:var(--black);border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;align-items:center;gap:10px;}
+.install-banner.on{display:flex;}
+.install-banner-text{flex:1;font-size:12px;color:rgba(255,255,255,.8);line-height:1.4;}
+.install-banner-text b{color:#fff;}
+.install-banner-close{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO SCREEN ===== -->
+<div id="screen-intro">
+  <div class="intro-deco">汉</div>
+  <div class="intro-title">汉字 Chino</div>
+  <div class="intro-sub">Integrated Chinese · Temas 1–5</div>
+  <div class="intro-badge">🎓 Examen oral · Sin internet</div>
+  <div class="intro-features">
+    <div class="intro-feat"><div class="intro-feat-icon">🃏</div><div class="intro-feat-text">Fichas con audio por tema</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">🗣️</div><div class="intro-feat-text">Práctica oral con shadowing</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">📖</div><div class="intro-feat-text">Gramática con ejemplos</div></div>
+    <div class="intro-feat"><div class="intro-feat-icon">🔊</div><div class="intro-feat-text">Pronunciación de todos los caracteres</div></div>
+  </div>
+  <button class="btn-start" onclick="startApp()">开始 · Comenzar</button>
+</div>
+
+<!-- ===== APP SCREEN ===== -->
+<div id="screen-app">
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-icon">汉</div>
+      <div>
+        <div class="topbar-name">汉字 Chino</div>
+        <div class="topbar-sub" id="voice-warn">⏳ Cargando voz…</div>
+      </div>
+    </div>
+    <div id="topbar-user">
+      <button class="btn-login" onclick="openAuthModal()">Entrar 👤</button>
+    </div>
+  </div>
+
+  <div class="install-banner" id="install-banner">
+    <div class="install-banner-text"><b>Añade la app a tu pantalla de inicio</b> para usarla sin internet: Safari → Compartir → "Añadir a inicio"</div>
+    <button class="install-banner-close" onclick="dismissBanner()">✕</button>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn on" id="nav-fichas" onclick="showSection('fichas')">🃏 Fichas</button>
+    <button class="nav-btn" id="nav-frases" onclick="showSection('frases')">🗣️ Oral</button>
+    <button class="nav-btn" id="nav-gram" onclick="showSection('gram')">📖 Gramática</button>
+    <button class="nav-btn" id="nav-pron" onclick="showSection('pron')">🔊 Sonidos</button>
+    <button class="nav-btn" id="nav-reviews" onclick="showSection('reviews')">⭐ Reseñas</button>
+  </div>
+
+  <!-- ===== FICHAS ===== -->
+  <div class="section on" id="sec-fichas">
+    <div class="dataset-row" id="ds-row">
+      <button class="ds-btn on" id="ds-t1" onclick="setDataset('t1')">T1</button>
+      <button class="ds-btn" id="ds-t2" onclick="setDataset('t2')">T2</button>
+      <button class="ds-btn" id="ds-t3" onclick="setDataset('t3')">T3</button>
+      <button class="ds-btn" id="ds-t4" onclick="setDataset('t4')">T4</button>
+      <button class="ds-btn" id="ds-t5" onclick="setDataset('t5')">T5 · Visita</button>
+      <button class="ds-btn" id="ds-all" onclick="setDataset('all')">📚 Todo</button>
+    </div>
+    <div class="filter-wrap">
+      <div class="filter-title">Categoría</div>
+      <div class="filter-row" id="filters"></div>
+    </div>
+    <div class="mode-row">
+      <button class="mb on" id="m-hanzi" onclick="setMode('hanzi')">汉字 → ES</button>
+      <button class="mb" id="m-esp" onclick="setMode('esp')">ES → 汉字</button>
+      <button class="mb" id="m-oral" onclick="setMode('oral')">🎧 Audio</button>
+    </div>
+    <div class="autoplay-row">
+      <input type="checkbox" id="autoplay-cb" checked onchange="autoplay=this.checked">
+      <label for="autoplay-cb">Auto-audio</label>
+    </div>
+    <div class="prog-label" id="prog-label">Ficha 1 de —</div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="card-area">
+      <div class="card-outer" onclick="flip()">
+        <div class="card-inner" id="ci">
+          <div class="face front">
+            <div class="hanzi" id="f-main"></div>
+            <div class="pinyin" id="f-sub"></div>
+            <div class="cat-badge" id="f-cat"></div>
+            <div class="hint" id="f-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="esp" id="b-main"></div>
+            <div class="pinyin" id="b-pinyin"></div>
+            <div class="hanzi" style="font-size:30px;" id="b-hanzi"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="audio-row">
+      <button class="audio-btn" id="btn-zh" onclick="speak('zh')">🔊 Chino</button>
+      <button class="audio-btn" id="btn-es" onclick="speak('es')">🔊 Español</button>
+    </div>
+    <div class="actions" id="actions">
+      <button class="btn-no" onclick="answer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="skipCard()">→ Saltar</button>
+      <button class="btn-si" onclick="answer(true)">✓ La sé</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-ok" style="color:var(--green);">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="s-no" style="color:var(--red);">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="s-left">—</div><div class="stat-l">Quedan</div></div>
+    </div>
+    <div id="done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="done-msg"></p>
+      <button class="restart-btn" onclick="restart('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restart('wrong')">⚠️ Solo fallos</button>
+    </div>
+  </div>
+
+  <!-- ===== ORAL ===== -->
+  <div class="section" id="sec-frases">
+    <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.75rem 1rem;margin-bottom:.75rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+        <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Modo</div>
+        <button class="sel-toggle-btn" id="sel-toggle-btn" onclick="toggleSelector()">☰ Seleccionar</button>
+      </div>
+      <div class="mode-row" style="margin-bottom:0;">
+        <button class="mb on" id="pm-listen" onclick="setPhraseMode('listen')">🎧 Escuchar</button>
+        <button class="mb" id="pm-shadow" onclick="setPhraseMode('shadow')">🔁 Shadowing</button>
+        <button class="mb" id="pm-esp" onclick="setPhraseMode('esp')">ES → 汉字</button>
+      </div>
+    </div>
+    <div class="phrase-selector" id="phrase-selector">
+      <div class="ps-header">
+        <div class="ps-title">Elige frases a practicar</div>
+        <div class="ps-actions">
+          <button class="ps-act-btn" onclick="psSelectAll()">Todas</button>
+          <button class="ps-act-btn" onclick="psSelectNone()">Ninguna</button>
+          <button class="ps-act-btn primary" onclick="applySelection()">▶ Practicar</button>
+        </div>
+      </div>
+      <div class="phrase-list" id="phrase-list"></div>
+    </div>
+    <div class="shadow-bar" id="shadow-bar">
+      <div class="shadow-icon">🎙️</div>
+      <div class="shadow-text">
+        <div class="shadow-title">Shadowing activo</div>
+        <div class="shadow-sub">Escucha → repite → siguiente</div>
+      </div>
+      <button class="shadow-stop" onclick="stopShadow()">Pausar</button>
+    </div>
+    <div class="prog-label" id="ph-prog-label">Frase 1 de 20</div>
+    <div class="prog-wrap"><div class="prog-fill" id="ph-prog-fill" style="width:0%"></div></div>
+    <div class="card-area">
+      <div class="card-outer phrase-mode" onclick="flipPhrase()">
+        <div class="card-inner" id="ph-ci">
+          <div class="face front">
+            <div style="font-size:26px;margin-bottom:4px;" id="ph-icon">🔊</div>
+            <div class="phrase-hanzi" id="ph-hanzi"></div>
+            <div class="hint" id="ph-hint">Toca para ver el significado</div>
+          </div>
+          <div class="face back">
+            <div class="phrase-back-esp" id="ph-esp"></div>
+            <div class="phrase-back-pinyin" id="ph-pinyin"></div>
+            <div class="phrase-back-hanzi" id="ph-hanzi-back"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="audio-row" style="margin-bottom:.5rem;">
+      <button class="audio-btn btn-repeat" id="btn-phrase-repeat" onclick="repeatPhrase()">🔁 Repetir</button>
+      <button class="audio-btn" id="btn-phrase-slow" onclick="repeatPhraseSlow()">🐢 Despacio</button>
+    </div>
+    <div class="actions" id="ph-actions">
+      <button class="btn-no" onclick="phraseAnswer(false)">✗ No la sé</button>
+      <button class="btn-skip" onclick="phraseSkip()">→ Saltar</button>
+      <button class="btn-si" onclick="phraseAnswer(true)">✓ La sé</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="ph-s-ok" style="color:var(--green);">0</div><div class="stat-l">Sé</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-no" style="color:var(--red);">0</div><div class="stat-l">Repaso</div></div>
+      <div class="stat"><div class="stat-n" id="ph-s-left">20</div><div class="stat-l">Quedan</div></div>
+    </div>
+    <div id="ph-done-box" class="done-box" style="display:none;">
+      <div style="font-size:40px;margin-bottom:.5rem;">🎉</div>
+      <h3>¡Ronda completada!</h3>
+      <p id="ph-done-msg"></p>
+      <button class="restart-btn" onclick="restartPhrases('all')">🔄 Repetir todas</button>
+      <button class="restart-btn" onclick="restartPhrases('wrong')">⚠️ Solo fallos</button>
+    </div>
+  </div>
+
+  <!-- ===== GRAMÁTICA ===== -->
+  <div class="section" id="sec-gram">
+    <div id="gram-picker" class="gram-picker">
+      <div class="gram-topic-grid">
+        <div class="gram-topic-btn" onclick="showGramTopic(1)">
+          <div class="gt-icon">👋</div>
+          <div class="gt-label">Tema 1</div>
+          <div class="gt-sub">Presentaciones</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(2)">
+          <div class="gt-icon">👨‍👩‍👧</div>
+          <div class="gt-label">Tema 2</div>
+          <div class="gt-sub">Familia</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(3)">
+          <div class="gt-icon">📅</div>
+          <div class="gt-label">Tema 3</div>
+          <div class="gt-sub">Fechas y horas</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(4)">
+          <div class="gt-icon">🎵</div>
+          <div class="gt-label">Tema 4</div>
+          <div class="gt-sub">Hobbies</div>
+        </div>
+        <div class="gram-topic-btn" onclick="showGramTopic(5)" style="grid-column: span 2;">
+          <div class="gt-icon">🍵</div>
+          <div class="gt-label">Tema 5</div>
+          <div class="gt-sub">Visita a un amigo / Begudes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tema 1 -->
+    <div class="gram-content" id="gram-t1">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 1 – Presentaciones</div>
+        <div class="gram-card">
+          <div class="gram-card-title">Preguntar el apellido (cortés)</div>
+          <div class="gram-pattern">您贵姓？</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('您贵姓？',zhVoice,'zh-CN')"><div class="gram-ex-zh">您贵姓？</div><div class="gram-ex-py">Nín guì xìng?</div><div class="gram-ex-es">¿Cómo se apellida usted? (formal)</div></div>
+            <div class="gram-ex" onclick="speakText('我姓王，叫王朋。',zhVoice,'zh-CN')"><div class="gram-ex-zh">我姓王，叫王朋。</div><div class="gram-ex-py">Wǒ xìng Wáng, jiào Wáng Péng.</div><div class="gram-ex-es">Me llamo Wang, Wang Peng.</div></div>
+          </div>
+        </div>
+        <div class="gram-card">
+          <div class="gram-card-title">Partícula de pregunta 呢</div>
+          <div class="gram-pattern">A + 呢？ → ¿Y A?</div>
+          <div class="gram-examples">
+            <div class="gram-ex" onclick="speakText('你好，你呢？',zhVoice,'zh-CN')"><div class="gram-ex-zh">你好，你呢？</div><div class="gram-ex-py">Nǐ hǎo, nǐ ne?</div><div class="gram-ex-es">Hola, ¿y tú?</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#ccc;text-align:center;margin-bottom:1rem;">Toca cualquier ejemplo para escucharlo 🔊</p>
+    </div>
+
+    <!-- Tema 2 -->
+    <div class="gram-content" id="gram-t2">
+      <button class="gram-back-btn" onclick="showGramPicker()">← Volver a temas</button>
+      <div class="gram-section">
+        <div class="gram-title">📌 Tema 2 – Familia</div>
+        <div class="gram-card">
+          <div class="gram-card-title">Tener /
