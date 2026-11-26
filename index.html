@@ -91,6 +91,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   padding: 13px 14px; margin: 8px 0 12px; outline: none;
 }
 .search:focus, .text-input:focus { border-color: var(--blue); }
+.notes-heading { color: var(--gold); font-size: 18px; margin: 26px 0 10px; }
 .switch-row, .mode-row { display: flex; gap: 6px; padding: 5px; background: #111116; border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; margin-bottom: 12px; }
 .mode-btn { white-space: nowrap; flex: 1; padding: 8px 11px; border-radius: 9px; color: var(--muted); font-size: 12px; font-weight: 750; }
 .mode-btn.active { background: var(--red); border-color: var(--red); color: white; }
@@ -278,7 +279,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     <section class="section" id="sec-dict">
       <div class="section-heading"><div><h2>📖 Diccionario</h2><p>Busca por caracteres, pinyin o significado. Abre los ejemplos para escucharlos.</p></div></div>
       <div class="switch-row"><button class="mode-btn active" id="dict-tab-current" type="button" onclick="switchDictTab('current')">Tema actual</button><button class="mode-btn" id="dict-tab-global" type="button" onclick="switchDictTab('global')">Todos (1–6)</button></div>
-      <input class="search" id="global-search" type="search" placeholder="Buscar hanzi, pinyin o español…" autocomplete="off" oninput="renderDictionary()" aria-label="Buscar vocabulario">
+      <input class="search" id="global-search" type="search" placeholder="Buscar hanzi, pinyin o español (sin tonos ni acentos: nihao, ni3hao3, telefono)…" autocomplete="off" oninput="renderDictionary()" aria-label="Buscar vocabulario">
       <div id="dict-list-container"></div>
     </section>
 
@@ -619,7 +620,12 @@ const VOCAB_TEMA_6 = [
 {num:50,hz:"大学",py:"dàxué",cat:"Sustantivo",es:"Universidad",exZh:"我是大学二年级的学生。",exPy:"Wǒ shì dàxué èr niánjí de xuésheng.",exEs:"Soy estudiante de segundo curso de universidad."},
 {num:51,hz:"学生",py:"xuésheng",cat:"Sustantivo",es:"Estudiante",exZh:"我明天要给学生开会。",exPy:"Wǒ míngtiān yào gěi xuésheng kāi huì.",exEs:"Mañana voy a organizar una reunión para los estudiantes."},
 {num:52,hz:"问",py:"wèn",cat:"Verbo",es:"Preguntar; hacer preguntas",exZh:"我想问您几个问题。",exPy:"Wǒ xiǎng wèn nín jǐ ge wèntí.",exEs:"Quiero hacerle unas cuantas preguntas."},
-{num:53,hz:"想",py:"xiǎng",cat:"Verbo modal",es:"Querer; tener ganas de",exZh:"我想去办公室。",exPy:"Wǒ xiǎng qù bàngōngshì.",exEs:"Quiero ir a la oficina."}
+{num:53,hz:"想",py:"xiǎng",cat:"Verbo modal",es:"Querer; tener ganas de",exZh:"我想去办公室。",exPy:"Wǒ xiǎng qù bàngōngshì.",exEs:"Quiero ir a la oficina."},
+{num:54,hz:"啊",py:"a",cat:"Partícula",es:"Partícula al final de la frase para exclamar o preguntar",exZh:"我们考中文，好吗？——好啊！",exPy:"Wǒmen kǎo Zhōngwén, hǎo ma? — Hǎo a!",exEs:"¿Hacemos el examen de chino, vale? — ¡Vale!"},
+{num:55,hz:"可是",py:"kěshì",cat:"Conjunción",es:"Pero (= 但是; 但是 es un poco más formal)",exZh:"我想去，可是我没有时间。",exPy:"Wǒ xiǎng qù, kěshì wǒ méiyǒu shíjiān.",exEs:"Quiero ir, pero no tengo tiempo."},
+{num:56,hz:"回去",py:"huí qu",cat:"Verbo direccional",es:"Volver allí (alejándose de donde estás)",exZh:"你什么时候回去？",exPy:"Nǐ shénme shíhou huí qu?",exEs:"¿Cuándo vuelves allí?"},
+{num:57,hz:"一起",py:"yìqǐ",cat:"Adverbio",es:"Juntos (跟 + persona + 一起)",exZh:"我跟你一起去。",exPy:"Wǒ gēn nǐ yìqǐ qù.",exEs:"Voy contigo (juntos)."},
+{num:58,hz:"面",py:"miàn",cat:"Sustantivo",es:"Cara (de ahí 见面: «verse la cara», quedar)",exZh:"我想跟你见面。",exPy:"Wǒ xiǎng gēn nǐ jiàn miàn.",exEs:"Quiero quedar contigo."}
 ];
 
 const TEXT_TEMA5_1 = [
@@ -749,6 +755,9 @@ function saveState(){
 }
 function getVocab(theme=currentTheme){return VOCAB_BY_THEME[theme] || [];}
 function normalise(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+// Clave de búsqueda: sin tonos ni acentos, sin espacios ni signos, números de tono fuera (ni3hao3), v = ü
+function searchKey(s){return normalise(s).replace(/([a-z])[1-5]/g,'$1').replace(/v/g,'u').replace(/[\s'’·\-–—_.,;:!?¡¿()（）\[\]"“”«»/，。？！、；：…]+/g,'');}
+function matchesQuery(text,q){const hay=searchKey(text);if(!hay)return false;const whole=searchKey(q);if(whole&&hay.includes(whole))return true;const tokens=normalise(q).split(/\s+/).map(searchKey).filter(Boolean);return tokens.length>1&&tokens.every(t=>hay.includes(t));}
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 function isSectionAvailable(id, theme=currentTheme){
@@ -796,9 +805,13 @@ function navigateById(id){navigate(id,null);}
 function switchDictTab(tab){dictTab=tab;document.getElementById('dict-tab-current').classList.toggle('active',tab==='current');document.getElementById('dict-tab-global').classList.toggle('active',tab==='global');renderDictionary();}
 function renderDictionary(){
   const input=document.getElementById('global-search');if(!input)return;
-  const q=normalise(input.value);
+  const q=input.value.trim();
   let entries=dictTab==='global'?GLOBAL_VOCAB:GLOBAL_VOCAB.filter(w=>w.theme===currentTheme);
-  if(q)entries=entries.filter(w=>normalise(w.hz).includes(q)||normalise(w.py).includes(q)||normalise(w.es).includes(q)||normalise(w.cat).includes(q));
+  if(searchKey(q)){
+    const direct=entries.filter(w=>matchesQuery([w.hz,w.py,w.es,w.cat].join(' '),q)||matchesQuery(w.hz,q)||matchesQuery(w.py,q)||matchesQuery(w.es,q));
+    const inExamples=entries.filter(w=>!direct.includes(w)&&matchesQuery([w.exZh,w.exPy,w.exEs].join(' '),q));
+    entries=[...direct,...inExamples];
+  }
   const container=document.getElementById('dict-list-container');
   if(!entries.length){container.innerHTML='<div class="empty-state">No se han encontrado palabras. Prueba con otro carácter, pinyin o significado.</div>';return;}
   container.innerHTML=entries.map(w=>{
@@ -923,7 +936,20 @@ function renderGrammar(){
     grammarCard('15. 帮 (bāng): A + 帮 + B + hacer algo','Fórmula: Persona A + 帮 + Persona B + Verbo/Acción (“A ayuda a B a hacer algo”).',[
       {zh:'我可以帮你吗？',py:'Wǒ kěyǐ bāng nǐ ma?',es:'¿Te puedo ayudar?'},{zh:'你可以帮我准备考试吗？',py:'Nǐ kěyǐ bāng wǒ zhǔnbèi kǎoshì ma?',es:'¿Me puedes ayudar a preparar el examen?'}])+
     grammarCard('16. Matices clave: 下个, 没有时间, 好吗？ = 行不行？ y 点儿 vs 一下','1) 下个 (“siguiente / próximo”) se usa con semanas o meses (下个星期一), pero nunca se puede usar con “mañana” (明天). 2) Con 没有时间, 时间 va antes de 给 + persona + verbo. 3) 好吗？ equivale a 行不行？ (“¿vale? / ¿de acuerdo?”). 4) Disponibilidad: 有时间 / 没(有)事儿 / 不忙. 5) 一点儿 va antes del sustantivo (一点 siempre se puede usar; 点 solo detrás de verbo), mientras que 一下 va después del verbo.',[
-      {zh:'我们下午六点没有时间给您打电话。',py:'Wǒmen xiàwǔ liù diǎn méiyǒu shíjiān gěi nín dǎ diànhuà.',es:'No tenemos tiempo para llamarle a las 6 de la tarde (时间 va antes de 给您).'},{zh:'明天常老师没有事儿。',py:'Míngtiān Cháng lǎoshī méiyǒu shìr.',es:'Mañana la profesora Chang no tiene nada que hacer / está libre.'},{zh:'我想去办公室。',py:'Wǒ xiǎng qù bàngōngshì.',es:'Quiero ir a la oficina.'}]);
+      {zh:'我们下午六点没有时间给您打电话。',py:'Wǒmen xiàwǔ liù diǎn méiyǒu shíjiān gěi nín dǎ diànhuà.',es:'No tenemos tiempo para llamarle a las 6 de la tarde (时间 va antes de 给您).'},{zh:'明天常老师没有事儿。',py:'Míngtiān Cháng lǎoshī méiyǒu shìr.',es:'Mañana la profesora Chang no tiene nada que hacer / está libre.'},{zh:'我想去办公室。',py:'Wǒ xiǎng qù bàngōngshì.',es:'Quiero ir a la oficina.'}])+
+    '<h3 class="notes-heading">📝 De tus apuntes de clase</h3>'+
+    grammarCard('17. 啊 (a) al final de la frase','啊 se añade al final de una frase para exclamar o para preguntar de forma más natural. Es típico para responder con entusiasmo a una propuesta.',[
+      {zh:'我们考中文，好吗？',py:'Wǒmen kǎo Zhōngwén, hǎo ma?',es:'¿Hacemos el examen de chino, vale?'},{zh:'好啊！',py:'Hǎo a!',es:'¡Vale! / ¡Muy bien!'}])+
+    grammarCard('18. 但是 (dànshì) = 可是 (kěshì): pero','Los dos significan «pero». 但是 es un poco más formal. En el ejemplo, 才 delante de la hora enfatiza que «solo» es esa hora (es pronto).',[
+      {zh:'我想回家，但是现在才七点半。',py:'Wǒ xiǎng huí jiā, dànshì xiànzài cái qī diǎn bàn.',es:'Quiero volver a casa, pero solo son las siete y media.'},{zh:'我想回家，可是现在才七点半。',py:'Wǒ xiǎng huí jiā, kěshì xiànzài cái qī diǎn bàn.',es:'Lo mismo con 可是.'}])+
+    grammarCard('19. 得 (děi) + acción: tener que','Fórmula: 得 + acción = tener que hacer algo. 得 va justo antes de la acción. Para decirle a alguien que NO haga algo se usa 别 + verbo. Ojo: «no hace falta / no tener que» se dice 不用 (bú yòng), no 不得.',[
+      {zh:'我现在得回家。',py:'Wǒ xiànzài děi huí jiā.',es:'Ahora tengo que volver a casa.'},{zh:'我们都得吃饭睡觉。',py:'Wǒmen dōu děi chī fàn shuì jiào.',es:'Todos tenemos que comer y dormir.'},{zh:'你现在别回家。',py:'Nǐ xiànzài bié huí jiā.',es:'No vuelvas a casa ahora (别 = no hagas).'},{zh:'你现在不用回家。',py:'Nǐ xiànzài bú yòng huí jiā.',es:'Ahora no hace falta que vuelvas a casa.'}])+
+    grammarCard('20. 跟 (gēn) + persona + verbo, y 跟…一起','跟 significa «con». Fórmula: Sujeto + 跟 + persona + verbo. Si añades 一起 después de la persona, remarcas que lo hacéis juntos.',[
+      {zh:'我跟你开会。',py:'Wǒ gēn nǐ kāi huì.',es:'Tengo una reunión contigo.'},{zh:'我得跟你开会。',py:'Wǒ děi gēn nǐ kāi huì.',es:'Tengo que hacer una reunión contigo.'},{zh:'我跟你一起开会。',py:'Wǒ gēn nǐ yìqǐ kāi huì.',es:'Tú y yo hacemos la reunión juntos.'}])+
+    grammarCard('21. 见面 (jiàn miàn): quedar, verse','面 significa «cara»: 见面 es literalmente «verse la cara». Es un verbo separable: la persona va antes con 跟 (跟你见面), nunca detrás (✗ 见面你).',[
+      {zh:'我想跟你见面。',py:'Wǒ xiǎng gēn nǐ jiàn miàn.',es:'Quiero quedar contigo.'},{zh:'我也想。',py:'Wǒ yě xiǎng.',es:'Yo también quiero.'}])+
+    grammarCard('22. 回来 (huí lai) frente a 回去 (huí qu)','回来 = volver aquí (hacia donde está quien habla). 回去 = volver allí (alejándose). Con 以后: acción + 以后, + 要 + 回来 para decir lo que harás después.',[
+      {zh:'你什么时候回去？',py:'Nǐ shénme shíhou huí qu?',es:'¿Cuándo vuelves allí?'},{zh:'我跟李友见面以后，我要回来。',py:'Wǒ gēn Lǐ Yǒu jiàn miàn yǐhòu, wǒ yào huí lai.',es:'Después de quedar con Li You, volveré aquí.'}]);
   }
 }
 
